@@ -1,0 +1,4 @@
+## adding rule
+iptables -A INPUT -p tcp --dport 23 -j ACCEPT
+service iptables save
+service iptables restart

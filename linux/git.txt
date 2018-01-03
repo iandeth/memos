@@ -1,0 +1,189 @@
+## Official Documentation
+# http://gitref.org/
+# http://git-scm.com/documentation
+# http://www.kernel.org/pub/software/scm/git/docs/gittutorial.html
+# https://git.wiki.kernel.org/index.php/GitSvnCrashCourse
+
+
+## initial config setting
+git config --global user.name 'Your Name'
+git config --global user.email you@somedomain.com
+git config --global color.diff auto
+git config --global color.status auto
+git config --global color.branch auto
+
+
+## creating new repos (local)
+cd project
+git init
+git add .
+git commit
+
+
+## making changes
+vim foo.txt
+touch new.txt
+git diff   # show changes not yet added to the index
+git add foo.txt new.txt
+git diff --cached  # show what is about to be commited
+git diff HEAD      # show both indexed and non-indexed changes
+git status
+git commit
+
+
+## short cut for add + commit
+## - but will ignore new files
+git commit -a
+
+
+## ignore files
+vim .gitignore
+git add .gitignore
+
+
+## viewing history
+git log
+git log -p             # with diff
+git log --stat         # with file change summary
+git log --name-status  # with file change mark
+git log --oneline      # compact
+git log --graph        # with branch topology graph
+git log --decorate     # display tags
+git log HEAD^..        # latest commit
+git log FROM..TO       # from rev - to rev
+git log branchname ^master  # show only logs for branchname
+git log master ^branchname  # show only logs for master after branch create
+git log --oneline --before={3.weeks.ago} --after={2010-04-18} --no-merges
+git log --grep=P4EDITOR --no-merges
+git log --grep="p4 depo" --format="%h %an %s"
+git log -Smethod_name   # search string from diff history
+
+
+## managing branches
+git branch experimental
+git branch                  # list branches
+git checkout experimental   # switch working branch
+vim foo.txt
+git commit -a
+git checkout master         # switch back to master
+git merge experimental
+git branch -d experimental  # delete branch
+#
+# Q: dry run 的なのはどうやるの？
+#
+
+
+## unstage changes (reverse of git add)
+git reset HEAD -- filename
+
+
+## reverting local changes
+git checkout               # show change status
+git checkout -- filename   # discard local change
+
+
+## restore deleted files
+git checkout HEAD^ conf.txt   # HEAD^, or commit rev
+
+
+## 過去のバージョンに戻す
+git tag                      # とあるタグまで戻したい
+git tag -v v1.2              # タグの log SHA 調べる
+git revert -n 411c00d9e^..   # そこから今までの反映を戻す (-n だと commit しない)
+git status
+git commit
+
+
+## making git command alias
+## eg: making alias of "git reset HEAD" as "git unstage"
+git config --global alias.unstage "reset HEAD"
+git config --global alias.st      "status -s"
+
+
+## more on git diff
+git diff v0.9 --stat             # just show file update summary
+git diff --stat master...erlang  # compare changes between 2 branches
+
+
+## git grep
+git grep foo
+
+
+##--------------------------
+## working with remote repos
+##--------------------------
+
+## create empty repos on server
+mkdir myproj
+git --bare init
+
+## get remote project to local disk
+git remote add alias git@github.com:schacon/hw.git
+git clone git@github.com:schacon/hw.git   # alias will be "origin"
+git clone ssh://bill@example.com/git/myapp.git
+
+
+## remove remote link
+git remote rm alias
+
+
+## view cloned project list
+git remote -v
+
+
+## merging remote updates (manually)
+git fetch                       # will not merge yet
+git log origin/master ^master   # show remote update log
+git merge origin/master         # merge to local
+
+
+## merging remote updates (manually)
+git pull
+
+## undo local merge
+git reset --hard HEAD
+
+## log
+git log origin/master ^master   # show remote update log
+git log master ^origin/master   # show local, before push update log
+git log HEAD..FETCH_HEAD        # show all branches' remote update log
+git log --author=Linus -5       # show Linus' latest 5 commits
+
+
+## push local commits to remote
+git push                       # master -> origin/master
+git push origin master         # push to branch 'master'
+git push origin newbranchname  # create+push to new branch
+git push -u origin master      # -u ???
+
+
+## tagging
+git tag -a v1.0           # -a: annotated tags (コメント付けれたり)
+git tag -a v1.0 558151a   # specify log SHA
+git tag                   # list all tags
+git tag -v v1.0           # find log SHA + info
+
+# push tags to remote (これやらんと remote に tag 反映されない)
+# 他の人達は git pull で tag 情報も含みで落とせる
+git push --tags
+
+
+## creating remote branch
+git branch foo
+git checkout foo
+vim conf.txt
+git commit -a
+git push origin foo
+...
+git branch -a      # local/remote 全 branch をリスト表示
+git checkout master
+git branch -D foo  # local を一旦消す
+git pull --all
+git checkout foo   # remote から取り直すと正常にリンクされる（？
+
+## deleting remote branch
+git push origin :foo        # remote を消す。コロン。わかりずれー
+git branch -Dr origin/foo   # remote のローカルコピーも消す
+
+## update remote branch list
+git remote prune origin

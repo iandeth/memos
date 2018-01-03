@@ -1,0 +1,59 @@
+http://betterthangrep.com/
+
+## install on Mac OS X
+brew install ack
+
+## ignore case
+ack -i foo
+
+## ignore directory
+ack --ignore-dir=/some/dir foo
+
+## search only for certain directory
+ack -G bar foo
+
+## use literal instead of regexp
+## don't need to escape regexp metachars
+ack -Q 127.0.0.1
+
+## include some file-types only
+ack --php foo   # php
+ack --ruby foo  # ruby
+
+## make ack search for all files,
+## including unknown file types
+## (else, ack will ignore those)
+ack -a foo
+
+## or, find in all text files (not binaries)
+## where there's unknown file types (eg *.scss, *.coffee)
+ack --text foo
+
+## show before/after n lines
+ack -C 3 foo
+ack -A 3 foo  # after only
+ack -B 3 foo  # before only
+
+## show file list as result
+ack -l foo
+ack -L foo   # invert match (!~)
+
+## all file list with match count
+ack -c foo
+
+## find only
+ack -g .sql
+
+## replace found words
+ack -l foo | xargs perl -pi -e 's/foo/bar/g'
+
+## use ack inside vim
+## :grep foo [DIR, DIR]
+:set grepprg=ack
+:set grepprg=ack\ -l  # with options
+
+## local ack settings
+vim .ackrc
+--ignore-dir=tmp
+--sort-files
+--pager=less -r

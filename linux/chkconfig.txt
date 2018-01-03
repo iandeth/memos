@@ -1,0 +1,20 @@
+# turn off unused daemon on OS install
+chkconfig acpid off
+chkconfig avahi-daemon off
+chkconfig avahi-dnsconfd off
+chkconfig bluetooth off
+chkconfig cups off
+chkconfig firstboot off
+chkconfig gpm off
+chkconfig hidd off
+chkconfig ip6tables off
+chkconfig iptables off
+chkconfig lvm2-monitor off
+chkconfig mcstrans off
+chkconfig mdmonitor off
+chkconfig netfs off
+chkconfig nfslock off
+chkconfig pcscd off
+chkconfig restorecond off
+chkconfig rpcgssd off
+chkconfig rpcidmapd off

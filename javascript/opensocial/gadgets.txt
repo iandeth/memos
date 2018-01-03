@@ -1,0 +1,159 @@
+### html escape method
+http://code.google.com/intl/en/apis/gadgets/docs/reference/#gadgets.util.escapeString
+_hesc(str)  # ???
+gadgets.util.escapeString( str );
+gadgets.util.unescapeString( str );
+
+### to set userpref from javascript
+<ModulePrefs>
+    <Require feature="setprefs" /> 
+</ModulePrefs>
+var prefs = new gadgets.Prefs();
+prefs.set("counter", count + 1);
+prefs.setArray("counter", [1,2,3]);
+
+### sharing user preferences
+http://code.google.com/intl/en/apis/gadgets/docs/basic.html#sharing
+<ModulePrefs>
+    <optional feature="shareable-prefs"/>
+</ModulePrefs>
+
+### registering as onload handler
+gadgets.util.registerOnLoadHandler( func );
+
+### debug: MiniMessages
+http://code.google.com/intl/en/apis/gadgets/docs/ui.html#Mini
+<ModulePrefs>
+    <Require feature="minimessage"/>
+</ModulePrefs>
+var msg = new gadgets.MiniMessage(__MODULE_ID__);
+msg.createDismissibleMessage( 'hoge' );
+
+### determining view mode
+http://code.google.com/intl/en/apis/gadgets/docs/ui.html#curr_view
+<ModulePrefs>
+    <Require feature="views" />
+</ModulePrefs>
+gadgets.views.getCurrentView().getName(); # current view
+gadgets.views.getSupportedViews();        # show all supported view on container
+gadgets.views.getCurrentView().isOnlyVisibleGadget(); # true like with canvas mode
+
+### switching view mode
+http://code.google.com/intl/en/apis/gadgets/docs/ui.html#nav
+<ModulePrefs>
+    <Require feature="views" />
+</ModulePrefs>
+var sv = gadgets.views.getSupportedViews();
+gadgets.views.requestNavigateTo( sv['profile'] );  # window is reloaded to the new view
+# or
+var view = new gadgets.views.View( 'canvas' );
+gadgets.views.requestNavigateTo( view );
+# with params
+gadgets.views.requestNavigateTo( view, { foo:1, bar:2 } );
+gadgets.views.getParams();  # and retrieve it in new view
+
+### adjusting height
+http://code.google.com/intl/en/apis/gadgets/docs/ui.html#Dyn_Heigh
+<ModulePrefs>
+    <Require feature="dynamic-height"/>
+</ModulePrefs>
+gadgets.window.adjustHeight();  # auto adjust height
+
+### detecting viewport dimension
+http://code.google.com/intl/en/apis/gadgets/docs/reference/#gadgets.window.getViewportDimensions
+<ModulePrefs>
+    <Require feature="dynamic-height"/>  # or settitle
+</ModulePrefs>
+var obj = gadgets.window.getViewportDimensions();  # detect inner dimensions of iframe
+
+### set gadget title
+http://code.google.com/intl/en/apis/gadgets/docs/ui.html#Settitle
+<ModulePrefs>
+    <Require feature="settitle"/>
+</ModulePrefs>
+gadgets.window.setTitle( 'new title' );
+
+### embed flash content
+http://code.google.com/intl/en/apis/gadgets/docs/ui.html#Flash
+<ModulePrefs>
+    <Require feature="flash"/>
+</ModulePrefs>
+gadgets.flash.embedFlash( url, "div-id", {
+    swf_version: 9,
+    id: "flashid",
+    width: 300,
+    height: 250
+});
+
+### fetching remote content
+http://code.google.com/intl/en/apis/gadgets/docs/remote-content.html
+var callback = function ( obj ){
+    obj.data;   // JSON object
+    obj.text;   // raw response
+    obj.errors; // error message array
+    obj.rc;     // HTTP response status code
+};
+var params = {};
+params[ gadgets.io.RequestParameters.CONTENT_TYPE ] = gadgets.io.ContentType.JSON;
+gadgets.io.makeRequest( url, callback, params );
+
+### POSTing to remote content
+http://code.google.com/intl/en/apis/gadgets/docs/remote-content.html#methods-post
+
+### no-cache makeRequest()
+http://code.google.com/intl/en/apis/gadgets/docs/remote-content.html#Cache
+use rand=1234 GET parameter
+rand = new Date().getTime() + '' + Math.floor( Math.random() * 1000 );
+
+### JSON dump / load
+gadgets.json.stringify( obj );
+gadgets.json.parse( str );
+gadgets.util.unescapeString( str );
+
+### setting authorization types
+http://code.google.com/intl/en/apis/gadgets/docs/remote-content.html#auth
+http://code.google.com/intl/en/apis/gadgets/docs/reference/#gadgets.io.makeRequest
+http://wiki.opensocial.org/index.php?title=Validating_Signed_Requests
+gadgets.io.AuthorizationType.OAUTH
+gadgets.io.AuthorizationType.SIGNED
+gadgets.io.AuthorizationType.NONE  # default
+... dunno what they're talking about, yet.
+
+### internationalization
+http://code.google.com/intl/en/apis/gadgets/docs/i18n.html
+
+### Locale
+http://code.google.com/intl/en/apis/gadgets/docs/reference.html > /ModulePrefs/Locale
+<ModulePrefs>
+    <Locale lang="ja"/>
+</ModulePrefs>
+
+### caching external files and images
+var cached_url = gadgets.io.getProxyUrl( url );  # for images, css and scripts
+gadgets.flash.embedCachedFlash( url, ... );   # for flash
+
+### preloading external javascript files
+http://code.google.com/intl/en/apis/gadgets/docs/reference.html > /ModulePrefs/Preload
+<ModulePrefs>
+    <Preload href="http://.../foo.js"/>
+</ModulePrefs>
+`This data is inlined in the rendered output, and it is available immediately when gadget code is executed.`
+should also work as a global namespace?
+
+### XML Reference
+http://code.google.com/intl/en/apis/gadgets/docs/reference.html
+
+### JavaScript gadgets.* API Reference
+http://code.google.com/intl/en/apis/gadgets/docs/reference/
+
+### find out if the container has a feature
+var bool = gadgets.util.hasFeature( feature_name );
+
+### enabling opensocial
+<ModulePrefs>
+    <Require feature="opensocial-0.8"/>
+</ModulePrefs>
+
+### what are these?
+http://www.fiddlertool.com/   ## browser performance tool?
+http://www.google.com/ig/modules/developer.xml

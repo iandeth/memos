@@ -1,0 +1,262 @@
+2. Code Layout
+Notice how closely the tidied version follows the various formatting guidelines in this chapter. To achieve that result, you need to configure your .perltidyrc file like this:
+
+	-l=78   # Max line width is 78 cols
+	-i=4    # Indent level is 4 cols
+	-ci=4   # Continuation indent is 4 cols
+	-st     # Output to STDOUT
+	-se     # Errors to STDERR
+	-vt=2   # Maximal vertical tightness
+	-cti=0  # No extra indentation for closing brackets
+	-pt=1   # Medium parenthesis tightness
+	-bt=1   # Medium brace tightness
+	-sbt=1  # Medium square bracket tightness
+	-bbt=1  # Medium block brace tightness
+	-nsfs   # No space before semicolons
+	-nolq   # Don't outdent long quoted strings
+	# Break before all operators
+	-wbb="% + - * / x != == >= <= =~ !~ < > | & >= < = **= += *= &= <<= 
+	      &&= -= /= |= >>= ||= .= %= ^= x=" 
+
+
+4.4. Escaped Characters
+
+	use charnames qw( :full ); # v5.6
+	$escape_seq = "\N{DELETE}\N{ACKNOWLEDGE}\N{CANCEL}Z";
+
+
+4.5. Constants
+
+	use Readonly;
+	Readonly my $MOLYBDENUM_ATOMIC_NUMBER => 42;
+
+Note that to get the full benefits of Readonly, you need to be using Perl 5.8 and have installed the associated Readonly::XS module, which requires precompilation. Be sure to read the module's documentation for a careful description of the pros and cons of using Readonly under earlier versions of Perl or without the precompiled helper module.
+
+
+4.7. Long Numbers
+Use underscores to improve the readability of long numbers.
+
+	$US_GDP              = 10_990_000_000_000;
+	$US_govt_revenue     =  1_782_000_000_000;
+
+
+5.5 Localization
+If performance matters in your application and you don't need $PREMATCH, $MATCH, or $POSTMATCH, try doing -no_match_vars.
+
+	use English qw( -no_match_vars );
+
+
+6.7. Necessary Subscripting
+use Data::Alias (or Lexical::Alias for < 5.8.1) for loop alias.
+
+	use Data::Alias;
+	for my $key (keys %hash) {
+		alias my $val = $hash{ $key };
+		print "Key is $key\n";
+		uc($val) if $val;
+	}
+
+
+8.1. Sorting
+Memoizing a subroutine causes it to remember every value it ever returns and to immediately return that same value (without recomputing it) the next time the subroutine is called with the same arguments.
+
+	# Make the SHA-512 digest function self-caching
+	use Digest::SHA qw( sha512 );
+	use Memoize;
+	memoize('sha512');
+	
+	# Sort by auto-cached SHA-512 digest of scripts
+	@sorted_scripts = sort { sha512($a) cmp sha512($b) } @scripts;
+
+
+8.5. Separated Data
+split() - If a third argument is provided, however, it specifies the maximum number of distinct fields that the split should return.
+
+	my ($ident, $sales, $price, $unexpected_data)
+		= split $RECORD_SEPARATOR, $record, $FIELD_COUNT+1;
+	carp "something's wrong" if $unexpected_data;
+
+
+for separating more complexed strings, use TEXT::CSV::Simple.
+
+	use Text::CSV::Simple;
+	my $csv_format
+		= Text::CSV::Simple->new({
+			sep_char	=> q{,}, 
+			escape_char => q{\\},
+			quote_char  => q{"},
+		});
+	$csv_format->field_map( qw( ident sales price ) );
+	for my $record_ref ($csv_format->read_file($sales_data)) {
+		push @sales, {
+			ident => translate_ID($record_ref->{ident}),
+			sales => $record_ref->{sales} * 1000,
+			price => $record_ref->{price},
+		};
+	}
+
+
+8.8. Automating Sorts
+Sort::Maker is your friend.
+
+    use Sort::Maker;
+    make_sorter(name => 'sort_sha', code => sub{ sha512($_)    }, ST => 1 );
+    make_sorter(name => 'sort_ids', code => sub{ /ID:(\d+)/xms }, ST => 1 );
+    make_sorter(name => 'sort_len', code => sub{ length        }, ST => 1 );
+
+    @names_shortest_first = sort_len(@names);
+    @names_digested_first = sort_sha(@names);
+    @names_identity_first = sort_ids(@names);
+
+    # or even
+    make_sorter( name => 'sort_max_first', qw( plain number descending ) );
+
+
+10.10 Power Slurping
+with perl5:
+
+     my $text = do { local $/; <$file_handle> };
+
+with CPAN module Perl6::Slurp:
+
+    use Perl6::Slurp;
+    my $text = slurp $file_handle;
+
+    # or even
+    my @lines = slurp $filename, {chomp => 1};
+
+
+10.12 Printing to Filehandles
+Always put filehandles in braces within any print statement. Putting braces around the filehandle helps it stand out clearly:
+
+    print {$file} $name, $rank, $serial_num, "\n";
+
+
+10.14 Interactivity
+Check for interactive execution:
+
+    use IO::Interactive qw( is_interactive );
+    if (is_interactive(  )) {
+        print $PROMPT;
+    }
+
+
+10.15 Power Prompting
+CPAN module for prompting:
+
+    use IO::Prompt;
+    my $line = prompt 'Enter a line: ';
+
+    # per key-stroke echoing
+    my $password = prompt 'Password: ', -echo => '*';
+
+
+12.2. Line Boundaries
+^ and $
+The /m mode makes ^ and $ work "naturally". Under /m, ^ no longer means "match at the start of the string"; it means "match at the start of any line". Likewise, $ no longer means "at end of string"; it means "at end of any line".
+
+
+12.3. String Boundaries
+Use \A and \z as string boundary anchors.
+Perl provides markers that always - and unambiguously - mean "start of string" and "end of string": \A and \z (capital A, but lowercase z). They mean "start/end of string" regardless of whether /m is active. They mean "start/end of string" regardless of what the reader thinks ^ and $ mean.
+
+
+12.18. quotemeta
+function that'll escape metachar's for regexp under /x flag.
+
+  print quotemeta 'hello world';
+  # hello\ world
+
+
+12.19 refactoring complex regexp
+factor out with qr{}.
+
+  Readonly my $DIGITS    => qr{ \d+ (?: [.] \d*)? | [.] \d+         }xms;
+  Readonly my $SIGN      => qr{ [+-]                                }xms;
+  Readonly my $EXPONENT  => qr{ [Ee] $SIGN? \d+                     }xms;
+  Readonly my $NUMBER    => qr{ ( ($SIGN?) ($DIGITS) ($EXPONENT?) ) }xms;
+  # and later...
+  my ($number, $sign, $digits, $exponent) = $input =~ $NUMBER;
+
+
+12.20 Canned Regexes
+use Regexp::Common
+
+  use Regexp::Common;
+  Readonly my $NUMBER => $RE{num}{real}{-keep};
+  my ($number) = $input =~ $NUMBER;
+
+
+13.2 Builtin Failures
+use Fatal instead of 'open() or die $!'
+
+  use Fatal qw( open close );
+  open my $fh, '>', $filename;
+  print {$fh} $results;
+  close $fh;
+
+
+13.3 Exception Classes
+use Exception::Class for croaking with exception object as arguments.
+
+  use Exception::Class (
+      X::EOF => {
+          fields => [ 'handle' ],
+      },
+  );
+  X::EOF->throw( handle => $fh ); # instead of die/croak
+
+
+14.5. Command-Line Processing
+always use Getopt::Long... but Getopt::Clade is a more
+powerful tool.
+
+  use Getopt::Clade q{
+    -i[n]  [=] <file:in>    Specify input file  [default: '-']
+    -o[ut] [=] <file:out>   Specify output file [default: '-']
+
+    -l[en] [=] <l:+int>     Display length [default: 24 ]
+    -w[id] [=] <w:+int>     Display width  [default: 78 ]
+
+    -v                      Print all warnings
+    --verbose               [ditto]
+  };
+
+
+14.6. Interface Consistency
+Getopt::Euclid ... automatically creates command line parser from POD documentation.
+
+
+17.3 Version Numbers
+use version module for best practice:
+
+  use version; our $VERSION = qv('1.0.3');
+
+  # for module's perl version req
+  package Payload;
+  use version;
+  use qv('5.6.1');  # instead of 'use 5.006001'
+
+  # for other module's version req
+  # (under Perl 5.6.1 and later)
+  use only q{ 5.6.1-  !5.8.0 };
+  use only 'IO::Prompt' => q{ 0.2-  !0.3.1-0.3.3 },  qw( prompt );
+  use only Benchmark => q{ -1.52 },  qw( cmpthese );
+
+17.6 Declarative Exporting
+instead of Exporter, use Perl6::Export::Attrs.
+
+  package Test::Utils;
+  use Perl6::Export::Attrs;
+  sub ok   :Export( :DEFAULT, :TEST, :PASS ) {...}
+  sub pass :Export(           :TEST, :PASS ) {...}
+  sub fail :Export(           :TEST        ) {...}
+  sub skip :Export                           {...}
+
+
+17.10 CPAN
+Another resource that may help sway your local Powers That Be is the "Perl Success Stories" archive (http://perl.oreilly.com/news/success_stories.html). Companies like Hewlett Packard, Amazon.com, Barclays Bank, Oxford University Press, and NBC are leveraging the resources of CPAN to better compete in their respective markets. Exploring their successes may cast Perl's software archive in a new and attractive pecuniary light for your boss.
+
+use Module::Starter::PBP for creating new CPAN modules
+
+  $ module-starter --module=new_module_name

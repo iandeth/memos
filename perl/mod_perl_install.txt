@@ -1,0 +1,20 @@
+[mod_perl 1.x]
+./configure  \
+--prefix=/usr/local/httpd-perl \
+--target=httpd-perl \
+--enable-module=so \
+--disable-rule=EXPAT
+
+perl Makefile.PL \
+USE_APXS=1 \
+WITH_APXS=/usr/local/httpd-perl/bin/apxs \
+EVERYTHING=1
+
+
+[mod_perl 2.x]
+apache:
+% ./configure --prefix=$HOME/httpd/prefork --with-mpm=prefork
+% make && make install
+
+mod_perl:
+perl Makefile.PL MP_APXS=/path/to/apxs

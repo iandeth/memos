@@ -1,0 +1,669 @@
+>>> http://perl.apache.org/docs/1.0/guide/intro.html
+
+- Apache::Registry
+package of a module executed by Apache::Registry will be as follows:
+
+	/perl/project/test.pl
+	package Apache::ROOT::perl::project::test_e2pl;
+
+Apache::Registry also stores the script's last modification time. Everytime the script changes, the cached code is discarded and recompiled using the modified source. However, it doesn't check the modification times of any of the perl libraries the script might use.
+
+- exit()
+Apache::Registry overrides CORE::exit() with Apache::exit(), so CGI scripts that use exit() will run correctly.
+
+- handler()
+Let's see what happens to your script when it's being executed under Apache::Registry. If we take the simplest code of (URI /perl/project/test.pl)
+
+	print "Content-type: text/html\n\n";
+	print "It works\n";
+
+Apache::Registry will convert it into the following:
+
+	package Apache::ROOT::perl::project::test_e2pl;
+	use Apache qw(exit);
+	sub handler {
+		print "Content-type: text/html\n\n";
+		print "It works\n";
+	}
+
+The sub handler subroutine is wrapped around your code. By default, when you use mod_perl and your code's URI is called, mod_perl will seek to execute the URI's associated handler subroutine.
+
+Apache::Registry is usually configured in this way:
+
+  Alias /perl/ /usr/local/apache/bin/
+  <Location /perl>
+    SetHandler perl-script
+    PerlHandler Apache::Registry
+    PerlSendHeader On
+    Options +ExecCGI
+  </Location>
+
+
+- Apach::PerlRun
+unlike Apache::Registry, Apache::PerlRun will not cache scripts. 
+
+
+>>> http://perl.apache.org/docs/1.0/guide/install.html
+
+- Basic mod_perl Installation
+The following 10 commands summarize the execution steps required to build and install a basic mod_perl enabled Apache server on almost any standard flavor of Unix OS.
+  % cd /usr/src
+  % lwp-download http://www.apache.org/dist/httpd/apache_1.3.xx.tar.gz
+  % lwp-download http://perl.apache.org/dist/mod_perl-1.xx.tar.gz
+  % tar xzvf apache_1.3.xx.tar.gz
+  % tar xzvf mod_perl-1.xx.tar.gz
+  % cd mod_perl-1.xx
+  % perl Makefile.PL APACHE_SRC=../apache_1.3.xx/src \
+    DO_HTTPD=1 USE_APACI=1 EVERYTHING=1
+  % make && make test && make install
+  % cd ../apache_1.3.xx
+  % make install
+
+
+- Checking installed hooks
+To see whether some feature was built in or not, check the %Apache::MyConfig::Setup hash. Another approach is to configure Apache::Status and run http://localhost/perl-status?hooks to check for enabled hooks.
+
+
+- Checking DSO availability of Perl
+To determine if you can use a DSO mod_perl with your version of Perl, first find out which malloc your Perl was built with by running:
+
+  % perl -V:usemymalloc
+
+If you get:
+
+  usemymalloc='n';
+
+then it means that Perl is using the system malloc, so mod_perl will work fine as DSO. Make sure that binary compatibility with Perl 5.005 turned off. To find out, run:
+
+  % perl -V:bincompat5005
+
+If you get:
+
+  bincompat5005='define';
+
+then you must either rebuild Perl with -Ubincompat5005 or with -Uusemymalloc to use it with a DSO mod_perl.
+
+
+- Build mod_perl as a DSO outside the Apache Source Tree via APXS
+Here are the build steps:
+
+  % tar xzvf mod_perl-1.xx.tar.gz
+  % cd mod_perl-1.xx
+  % perl Makefile.PL \
+    USE_APXS=1 \
+    WITH_APXS=/path/to/bin/apxs \
+    EVERYTHING=1 \
+     [...]
+  % make && make test && make install
+
+To use mod_perl as a DSO, make the following modifications to your Apache configuration files:
+
+  httpd.conf:
+  ----------
+  LoadModule perl_module modules/libperl.so
+  
+  PerlModule Apache::Registry 
+  Alias /perl/ /home/httpd/perl/ 
+  <Location /perl>
+    SetHandler perl-script 
+    PerlHandler Apache::Registry 
+    PerlSendHeader On 
+    Options +ExecCGI
+  </Location>
+
+
+- CPAN under your home directory
+
+  % perl -pi -e 's|/usr/src|/home/stas|' \
+  /home/stas/.cpan/CPAN/MyConfig.pm
+
+  'makepl_arg' => q[PREFIX=/home/stas],
+
+
+>>> http://perl.apache.org/docs/1.0/guide/config.html
+
+- add mod_perl related conf in different conf file
+like this:
+
+  <IfModule mod_perl.c>
+      Include conf/mod_perl.conf
+  </IfModule>
+
+
+- ScriptAlias is for mod_cgi, and not mod_perl
+ScriptAlias assigns all the requests that match the URI (i.e. /cgi-bin) to be executed under mod_cgi.
+
+  ScriptAlias /cgi-bin /home/httpd/cgi-bin
+
+is actually the same as:
+
+  Alias /cgi-bin /home/httpd/cgi-bin
+  <Location /cgi-bin>
+    SetHandler cgi-script
+    Options +ExecCGI
+  </Location>
+
+where latter directive invokes mod_cgi. You shouldn't use the ScriptAlias directive unless you want the request to be processed under mod_cgi. Therefore when you configure mod_perl sections use Alias instead.
+
+
+- PerlModule and PerlRequire Directives
+Example:
+
+    PerlModule Apache::DBI CGI DBD::Mysql
+
+These means 'use CGI ()' - without any imports. Generally the modules are preloaded from the startup script, which is usually called startup.pl. This is a file containing plain Perl code which is executed through the PerlRequire directive. For example:
+
+    PerlRequire  /home/httpd/perl/lib/startup.pl
+
+A PerlRequire file name can be absolute or relative to ServerRoot or a path in @INC. Notice that unless mod_perl is compiled as DSO and unless PerlFreshRestart is set to On, one needs to fully stop and start Apache for any changes to take affect, if the files and modules have been modified.
+
+
+- Preloading modules
+To make sure it gets loaded you have three options: you can explicitly preload it with the PerlModule directive:
+
+  PerlModule Apache::Foo
+
+You can preload it at the startup file:
+
+  use Apache::Foo ();
+
+Or you can use a nice shortcut that the Perl*Handler syntax provides:
+
+  Perl*Handler +Apache::Foo
+
+Note the leading + character. This directive is equivalent to:
+
+  PerlModule Apache::Foo
+  Perl*Handler Apache::Foo
+
+
+- make Apache::Registry call methods other than sub handler();
+If you decide to give the handler routine a name other than handler, for example my_handler, you must preload the module and explicitly give the name of the handler subroutine:
+
+  PerlModule Apache::Foo
+  Perl*Handler Apache::Foo::my_handler
+
+As you have seen, this will preload the module at server startup.
+Preloaded module with 'use CGI ()' style, because methods won't be imported in your Apache::Registry-called scripts, since they have their own name space, and not the same one with startup.pl.
+
+- PerlFreshRestart
+To reload PerlRequire, PerlModule and other use()'d modules, and to flush the Apache::Registry cache on server restart, add to httpd.conf:
+
+  PerlFreshRestart On
+
+Starting from mod_perl version 1.22 PerlFreshRestart is ignored when mod_perl is compiled as a DSO. But it almost doesn't matter, since mod_perl as a DSO will do a full tear-down (perl_destruct()). So it's still a FreshRestart, just fresher than static (non-DSO) mod_perl :)
+
+
+- Declaring Packages in <Perl> directive
+When you put code inside a <Perl> section, by default it actually goes into the Apache::ReadConfig package, which is already declared for you. This means that the PerlTransHandler we have tried to define above is actually undefined. If you define a different package name within a <Perl> section you must make sure to close the scope of that package and return to the Apache::ReadConfig package when you want to define the configuration directives, like this:
+
+  <Perl>  
+    package My::Trans;
+    use Apache::Constants qw(:common);
+    sub handler{ OK }
+    
+    package Apache::ReadConfig;  
+    $PerlTransHandler = "My::Trans";
+  </Perl>
+
+With your start-up.pl script, that one will be executed under main:: package.
+
+- Viewing <Perl> setup result with /perl-status
+In a running httpd you can see how you have configured the <Perl> sections through the URI /perl-status, by choosing Perl Section Configuration from the menu. In order to make this item show up in the menu you should set $Apache::Server::SaveConfig to a true value. When you do that the Apache::ReadConfig namespace (in which the configuration data is stored) will not be flushed, making configuration data available to Perl modules at request time.
+Example:
+
+ <Perl>
+ $Apache::Server::SaveConfig = 1;
+
+ $DocumentRoot = ...
+ ...
+ </Perl>
+
+At request time, the value of $DocumentRoot can be accessed with the fully qualified name $Apache::ReadConfig::DocumentRoot.
+
+
+- Strict <Perl> sections
+The variable $Apache::Server::StrictPerlSections has been added in mod_perl version 1.22. If you set this variable to a true value, for example
+
+  $Apache::Server::StrictPerlSections = 1;
+
+then mod_perl will not tolerate invalid Apache configuration syntax and will croak (die) if this is the case. At the time of writing the default value is 0.
+
+
+- Checking <Perl> section syntax
+use this:
+
+   $ apachectl configtest
+
+
+- mod_macro (for apache2.x)
+Here are some useful macros for mod_perl users:
+
+  # set up a registry script
+  <Macro registry>
+  SetHandler "perl-script"
+  PerlHandler Apache::Registry
+  Options +ExecCGI
+  </Macro>
+
+  # example
+  Alias /stuff /usr/www/scripts/stuff
+  <Location /stuff>
+  Use registry
+  </Location>
+
+
+>>> http://perl.apache.org/docs/1.0/guide/porting.html
+
+- Using Apache::StatINC
+To enable this module just add two lines to httpd.conf.
+
+  PerlModule Apache::StatINC
+  PerlInitHandler Apache::StatINC
+
+To be sure it really works, turn on debug mode on your development box by adding PerlSetVar StatINCDebug On to your config file. You end up with something like this:
+
+  PerlModule Apache::StatINC
+  <Location /perl>
+    SetHandler perl-script
+    PerlHandler Apache::Registry
+    Options ExecCGI
+    PerlSendHeader On
+    PerlInitHandler Apache::StatINC
+    PerlSetVar StatINCDebug On
+  </Location>
+
+Be aware that only the modules located in @INC are reloaded on change, and you can change @INC only before the server has been started (in the startup file).
+
+  PerlHandler      - 対象モジュールに対して更新チェック
+  Apache::Registry - Apache::Registry に渡る実行ファイルに対して更新チェック
+  Apache::StatINC  - use lib 中のすべての .pm に対して更新チェック (not .pl)
+  PerlFreshRestart - startup.pl や httpd.conf 中で use / require しているファイルを再読み込み
+
+- To reload perl files manually
+do the file:
+
+  $result = do $file;
+
+
+- Setting firm @INC with httpd.conf
+add this:
+
+  PerlSetEnv PERL5LIB /home/httpd/perl
+
+*If you want to add @INC for use with PerlModule directive inside httpd.conf, PerlSetEnv will not work, instead use <Perl>use lib /hoge</Perl>.
+
+
+- Can't use __DATA__ and __END__
+Apache::Registry scripts cannot contain __END__ or __DATA__ tokens. Why? Because Apache::Registry scripts are being wrapped into a subroutine called handler
+
+
+- Carefull with foreach keys %hash
+
+  #file:hash_iteration.pl
+  #----------------------
+  our %hash;
+  %hash = map {$_ => 1 } 'a'..'c' unless %hash;
+  
+  print "Content-type: text/plain\n\n";
+  
+  for (my ($k, $v) = each %hash) {
+      print "$k $v\n";
+      last;
+  }
+
+Must add 'keys %hash' statement before the for loop... else mod_perl will remember the last key in loop, with the last process.
+
+
+- BEGIN block
+will be run only once on parent start.
+
+
+- Command line switches
+Since scripts running under mod_perl don't need the shebang line, all switches except -w are ignored by mod_perl. This feature was added for a backward compatibility with CGI scripts.
+
+
+- Taint checks
+Since the -T switch doesn't have an equivalent perl variable, mod_perl provides the PerlTaintCheck directive to turn on taint checks. In httpd.conf, enable this mode with:
+
+  PerlTaintCheck On
+
+Now any code compiled inside httpd will be taint checked.
+
+
+- Time $^T with mod_perl
+Under mod_perl, files that have been created after the server's (child) startup are reported as having a negative age with -M (-C -A) test. This is obvious if you remember that you will get the negative result if the server was started before the file was created. It's normal behavior with perl.
+Simple solution would be to specify a fixup handler, which will be executed before each script is run:
+
+  sub Apache::PerlBaseTime::handler {
+    $^T = shift->request_time;
+    return Apache::Constants::DECLINED;
+  }
+
+and then in the httpd.conf:
+
+  PerlFixupHandler Apache::PerlBaseTime
+
+
+- File handling
+For mod_perl, before the end of the script you must close() any files you opened!
+
+  close IN;
+
+If you forget to close(), you might get file descriptor leakage and (if you flock()ed on this file descriptor) also unlock problems.
+Use IO::File (and the other IO::* modules). This allows you to assign the file handler to variable which can be my () (lexically) scoped. When this variable goes out of scope the file or other file system entity will be properly closed (and unlocked if it was locked). 
+
+  my $fh = IO::File->new("filename") or die $!;
+
+or use this:
+
+  open my $fh, $filename or die $! ;
+
+
+- Sharing variables between processes
+IPC::Shareable can be used to share variables between children.
+
+
+- Cannot use FindBin module under mod_perl
+Notice that you cannot use the FindBin.pm package, something that you'd do in the regular Perl scripts, because it relies on the BEGIN block it won't work under mod_perl. It's loaded and executed only for the first script executed inside the process, all the others will use the cached value, which would be probably incorrect if they reside in different directories. Perl 5.9.1 provides a new function FindBin::again which will do the right thing. Also the CPAN module FindBin::Real provides a working alternative working under mod_perl.
+
+
+- Monitoring
+Apache::Status, or Apache::VMonitor
+conf for Apache::VMonitor:
+
+  # Configuration in httpd.conf
+  <Location /sys-monitor>
+    SetHandler perl-script
+    PerlHandler Apache::VMonitor
+  </Location>
+
+  # startup file or <Perl> section:
+  use Apache::VMonitor();
+  $Apache::VMonitor::Config{BLINKING} = 0; # Blinking is evil
+  $Apache::VMonitor::Config{REFRESH}  = 0;
+  $Apache::VMonitor::Config{VERBOSE}  = 0;
+  $Apache::VMonitor::Config{SYSTEM}   = 1;
+  $Apache::VMonitor::Config{APACHE}   = 1;
+  $Apache::VMonitor::Config{PROCS}    = 1;
+  $Apache::VMonitor::Config{MOUNT}    = 1;
+  $Apache::VMonitor::Config{FS_USAGE} = 1;
+  $Apache::VMonitor::Config{NETLOAD}  = 1;
+                                
+  @Apache::VMonitor::NETDEVS    = qw(lo eth0);
+  $Apache::VMonitor::PROC_REGEX = join "\|", qw(httpd mysql squid);
+
+It requires Apache::Scoreboard and GTop to work. GTop in turn requires the libgtop library but is not available for all platforms. 
+
+
+- Apache::PerlVINC
+Allows Module Versioning in Location blocks and Virtual Hosts.
+
+Suppose two versions of Apache::Status are being hacked on the same server. In this configuration:
+
+  PerlModule Apache::PerlVINC
+  
+  <Location /status-dev/perl>
+    SetHandler       perl-script
+    PerlHandler      Apache::Status
+  
+    PerlINC          /home/httpd/dev/lib
+    PerlFixupHandler Apache::PerlVINC
+    PerlVersion      Apache/Status.pm
+  </Location>
+  
+  <Location /status/perl>
+    SetHandler       perl-script
+    PerlHandler      Apache::Status
+  
+    PerlINC          /home/httpd/prod/lib
+    PerlFixupHandler Apache::PerlVINC
+    PerlVersion      Apache/Status.pm
+  </Location>
+
+In case the /status/perl request is issued (the latter configuration section), the fixup handler will internally do:
+
+  delete $INC{Apache/Status.pm};
+  unshift @INC, /home/httpd/prod/lib;
+  require "Apache/Status.pm";
+
+
+- Apache::SubProcess
+The output of system(), exec(), and open(PIPE,"|program") calls will not be sent to the browser unless your Perl was configured with sfio.
+Let's see a few examples:
+
+  use Apache::SubProcess qw(system);
+  my $r = shift;
+  $r->send_http_header('text/plain');
+  system "/bin/echo hi there";
+
+
+- must read doc
+http://perl.apache.org/docs/1.0/guide/strategy.html
+
+
+- installing with different name
+use --target option with configure (apache) :
+
+  % ./configure --prefix=/usr/local/httpd_docs \
+     --target=httpd_docs \
+     --enable-module=so \
+     --enable-module=rewrite \
+     --enable-module=proxy \
+     --disable-rule=EXPAT
+
+  % make && make install
+
+
+- mod_proxy
+serves as a front-end proxy (buffering server), which in behind exists a mod_perl httpd + simple docs httpd.
+
+  ProxyPass          /modperl/  http://backend.example.com/modperl/
+  ProxyPassReverse   /modperl/  http://backend.example.com/modperl/
+
+ProxyReceiveBufferSize is the name of the parameter that specifies the size of the socket buffer. Configuring:
+
+  ProxyReceiveBufferSize 16384
+
+The number should be an integral multiple of 512.
+This will create a buffer of 16KB in size. Of course you want to set the buffer size as large as possible, since you want the heavy mod_perl processes to be utilized in the most efficient way, so you don't want them to waste their time waiting for a client to receive the data, especially if a client has a slow downstream connection.
+
+
+- Caching in mod_proxy
+This is not really mod_perl related, so I'll just stress one point. If you want the caching to work the following HTTP headers should be supplied: Last-Modified, Content-Length and Expires.
+
+
+- ApacheBench (ab)
+Let's try it. We will simulate 10 users concurrently requesting a very light script at www.example.com/perl/test.pl. Each simulated user makes 10 requests.
+
+  % ./ab -n 100 -c 10 www.example.com/perl/test.pl
+
+The results are:
+
+  Document Path:          /perl/test.pl
+  Document Length:        319 bytes
+  
+  Concurrency Level:      10
+  Time taken for tests:   0.715 seconds
+  Complete requests:      100
+  Failed requests:        0
+  Total transferred:      60700 bytes
+  HTML transferred:       31900 bytes
+  Requests per second:    139.86
+  Transfer rate:          84.90 kb/s received
+  
+  Connection Times (ms)
+                min   avg   max
+  Connect:        0     0     3
+  Processing:    13    67    71
+  Total:         13    67    74
+
+We can see that under load of ten concurrent users our server is capable of processing 140 requests per second. Of course this benchmark is correct only when the script under test is used. We can also learn about the average processing time, which in this case was 67 milli-seconds. 
+HTTPD::Bench::ApacheBench, available from CPAN, provides a Perl interface for ab.
+
+
+- Benchmarking PerlHandlers
+The Apache::Timeit module does PerlHandler Benchmarking. All it takes is adding this configuration directive inside httpd.conf:
+
+  PerlFixupHandler Apache::Timeit
+
+Since scripts running under Apache::Registry are running inside the PerlHandler these are benchmarked as well. Results will be shown in the error_log file.
+
+
+>>> http://perl.apache.org/docs/1.0/guide/performance.html
+
+- Memory usage monitoring
+use GTop and Apache::VMonitor. GTop looks like this:
+
+  use GTop;
+  my $gtop = GTop->new;
+  my $proc_mem = $gtop->proc_mem($$);
+  for (qw(size vsize share rss)) {
+      printf "   %s => %d\n", $_, $proc_mem->$_();
+  }
+
+
+- Sharing Memory
+Shared memory = all the modules loaded at startup. If you are pre-loading many modules you might be able to trade off the memory that stays shared against the time for an occasional fork by tuning MaxRequestsPerChild. Each time a child reaches this upper limit and dies it should release its unshared pages. The new child which replaces it will share its fresh pages until it scribbles on them.
+
+
+- shared memory with CGI
+to get more shared memory, use following script at startup.pl:
+
+  use CGI ();
+  CGI->compile(qw(header param));
+
+
+- child process forking with mod_perl
+Apache::SubProcess comes to help and provides a method cleanup_for_exec() which takes care of closing this file descriptor. Here is an example of the fork that takes care of freeing the parent process.
+
+  use Apache::SubProcess;
+  use POSIX 'setsid';
+  $SIG{CHLD} = 'IGNORE';
+  defined (my $kid = fork) or die "Cannot fork: $!\n";
+  if ($kid) {
+    # Parent runs this block
+  } else {
+    # Child runs this block
+      $r->cleanup_for_exec(); # untie the socket
+      chdir '/' or die "Can't chdir to /: $!";
+      setsid or die "Can't start a new session: $!";
+      close STDIN;
+      close STDOUT;
+      close STDERR;
+  
+    # some code comes here
+  
+      CORE::exit(0);
+  }
+  # possibly more code here usually run by the parent
+
+- Emulating multiple acceess to httpd
+You can use the ApacheBench ab utility which comes with the Apache distribution, the crashme script which uses LWP::Parallel::UserAgent, httperf or http_load.
+
+
+- Deciding max client number
+use this formula:
+
+                    Total_RAM - Shared_RAM_per_Child
+  MaxClients = ---------------------------------------
+               Max_Process_Size - Shared_RAM_per_Child
+
+But based on the test I conducted above, even if you have plenty of memory like I have (1Gb), increasing MaxClients sometimes will give you no improvement in performance. The more clients are running, the more CPU time will be required, the less CPU time slices each process will receive. The response latency (the time to respond to a request) will grow, so you won't see the expected improvement. The best approach is to find the minimum requirement for your kind of service and the maximum capability of your machine. 
+
+
+- MaxRequestPerChild
+The higher the number, more efficiency you get, but gain risk in memory leakage > RAM used up by spawn httpd's. Another approach is to use the Apache::SizeLimit or Apache::GTopLimit modules. By using either of these modules you should be able to discontinue using the MaxRequestPerChild, although for some developers, using both in combination does the job. 
+
+- MinSpareServers, MaxSpareServers and StartServers
+It's best to set StartServers and MinSpareServers to high numbers, so that if you get a high load just after the server has been restarted the fresh servers will be ready to serve requests immediately. With mod_perl, it's usually a good idea to raise all 3 variables higher than normal.
+
+
+- KeepAlive should be Off
+If you have httpd.conf with 'KeepAlive On', You have a real performance penalty, since after completing the processing for each request, the process will wait for KeepAliveTimeout seconds before closing the connection and will therefore not be serving other requests during this time. 
+
+You should turn it On with your non-mod_perl server (httpd_docs). For example if you have a page with 10 ad banners, which is not uncommon today, your server will work more effectively if a single process serves them all during a single connection. However, your client will see a slightly slower response, since banners will be brought one at a time and not concurrently as is the case if each IMG tag opens a separate connection.
+
+
+- PerlSetupEnv Off
+PerlSetupEnv Off is another optimization you might consider. This directive requires mod_perl 1.25 or later. %ENV population is expensive. Those who have moved to the Perl Apache API no longer need this extra %ENV population, and can gain by turning it Off. Scripts using the CGI.pm module require PerlSetupEnv On because that module relies on a properly populated CGI environment table. By default it is turned On.
+
+- Apache::Registry
+What it does is as follows:
+
+   1. run the stat() on the script's filename ($r->filename)
+   2. check that the file exists and is executable
+   3. generate a Perl package name based on the request's URI ($r->uri)
+   4. go to the directory the script resides in (chdir basename $r->filename)
+   5. compare the file's and stored in memory compiled subroutine's 
+      last modified time (if it was compiled already)
+   6. if modified or not compiled, compile the subroutine
+   7. go back to the previous directory (chdir $old_cwd)
+
+- How to find how much memory size an particular module cost:
+run this script:
+
+This is a perlbloat.pl that shows how much memory is acquired by Perl when you run some. So we can easily test the overhead of loading some modules.
+
+  #!/usr/bin/perl -w
+  use GTop ();
+  my $gtop = GTop->new;
+  my $before = $gtop->proc_mem($$)->size;
+  for (@ARGV) {
+      if (eval "require $_") {
+          eval { $_->import };
+      } else {
+          eval $_;
+          die $@ if $@;
+      }
+  }
+  my $after = $gtop->proc_mem($$)->size;
+  printf "@ARGV added %s\n", GTop::size_string($after - $before);
+
+Now let's try to load IO, which loads IO::Handle, IO::Seekable, IO::File, IO::Pipe, IO::Socket and IO::Dir:
+
+  % ./perlbloat.pl 'use IO;'
+  use IO; added  1.5M
+
+
+- auto flush $|
+As you know, local $|=1; disables the buffering of the currently selected file handle (default is STDOUT). If you enable it, ap_rflush() is called after each print(), unbuffering Apache's IO.
+An even better solution is to keep buffering enabled, and use a Perl API $r->rflush() call to flush the buffers when needed. So you kill two birds with one stone: you show some of the data to the user immediately, so she will feel that something is actually happening, and you have no performance hit from disabled buffering.
+
+
+- Apache::GTopLimit
+To set a shared memory lower limit of 4MB using Apache::GTopLimit add the following code into the startup.pl file:
+
+  use Apache::GTopLimit;
+  $Apache::GTopLimit::MIN_PROCESS_SHARED_SIZE = 4096;
+
+and in httpd.conf:
+
+  PerlFixupHandler Apache::GTopLimit
+
+
+- Limiting the Number of Processes Serving the Same Resource
+When you compile in and enable the Apache mod_throttle_access module, the MaxConcurrentReqs directive becomes available. For example, the following setting:
+
+  <Location "/perl/morphing">
+    <Limit PUT GET POST>
+      MaxConcurrentReqs 10
+    </Limit>
+  </Location> 
+
+will allow only 10 concurrent PUT, GET or POST requests under the URI /perl/morphing to be processed at one time. The other two URIs remain unlimited.
+
+
+>>> http://perl.apache.org/docs/1.0/api/Apache/PerlRun.html
+
+- Apache::PerlRun
+This module's handler emulates the CGI environment, allowing programmers to write scripts that run under CGI or mod_perl without change. Unlike Apache::Registry, the Apache::PerlRun handler does not cache the script inside of a subroutine. Scripts will be "compiled" every request. After the script has run, it's namespace is flushed of all variables and subroutines.
+
+
+>>> http://perl.apache.org/docs/1.0/guide/porting.html
+
+- warnings and taint mode on mod_perl
+These on httpd.conf will turn on/off globally.
+
+  PerlWarn On
+  PerlTaintCheck On

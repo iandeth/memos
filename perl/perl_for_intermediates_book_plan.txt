@@ -1,0 +1,123 @@
+- Table Of Contents
+
+変数の型
+  SCALAR, ARRAY, HASH, REF, GLOB
+
+演算子
+  +, -, /, *, %, !, ==, !=, >, <, eq, ne, gt, lt, ++, --, ?:
+  <=>, cmp, まだまだ盛り沢山。うーん...
+
+制御構文 - 条件
+  if..elsif..else, unless, &&, ||, and, or, ..,
+
+制御構文 - ループ
+  for(..), for(;;), foreach, while, next, last,  (until, continue, do)
+  $_,
+
+
+SCALAR操作
+  '', "", q(), qq(), substr, sprintf, split,
+
+SCALAR操作 - 正規表現編
+  m//, s//, tr//, qr(), pos(), undef
+
+ARRAY操作
+  qw(), push, pop, shift, unshift, splice, join, reverse, sort, 
+  map, grep, (undef, slice)
+
+HASH操作
+  exists, delete, keys, values, (sort, map, grep, undef, slice)
+
+データ構造体の操作
+  {}, [], \, ref, defined
+
+
+外部ファイルの操作
+  open, close, <>, glob, flock, -e & other filechecks, select,
+  $/, $.
+
+外部コマンドの実行
+  system, qx(), ``, open(H,'| xxx'), Shell
+
+バイナリ操作
+  read, sysread, write, syswrite, pack, unpack, >>, <<, ...うーん苦手
+
+その他関数
+  eval,
+
+特殊変数
+  $0, $@, $|, 
+
+
+変数のスコープ
+  block {}, package, my, our, local
+
+自作関数 - 作り方＋使い方
+  sub {}, @_, &, (), 
+
+プラグマ - 基本編
+  use の説明
+  strict, warnings, (vars)
+
+モジュール - 基本編
+  use の説明
+  Constant,
+  Time::HiRes, Benchmark,
+  Data::Dumper, Dumpvalue,
+
+
+モジュールの作り方 - 基本
+  package, Exporter, Carp, AUTOLOAD, INIT, END,
+  use lib + BEGIN, 
+
+モジュールの作り方 - テストコードの書き方
+  Test::Simple, Test::More, Test::Harness
+
+PerlでOOP - クラスの作り方
+  bless, use base, (@ISA), SUPER, DESTROY
+
+PerlでOOP - ユニットテスト
+  Test::Class, Test::Unit
+
+
+文字コード
+  encoding, Encode, open, use open, binmode, (Jcode, use utf8)
+
+
+コマンドラインオプション
+  -e, -ne, -pe, -i, -a -F, -wc, -M, Ctrl+D
+
+言語リファレンスの使い方
+  man perl, perldoc -l -f, http://search.cpan.org, (http://perldoc.jp)
+
+CPAN
+  -MCPAN -e shell, make install, 
+
+Perlデバッガの使い方
+  perl -d
+
+PerlでCGI
+  CGI, Template, CGI::Carp, HTML::FillInForm, CGI::Application,
+  mod_perl,
+
+PerlでXML
+  XML::Parser, XML::Simple, XML::Dumper
+
+
+プラグマ - 便利編
+  overload, fields
+
+モジュール - 便利編
+  DateTime,
+  FindBin,
+  FileHandle, File::Spec, File::Find
+  LWP::Simple,
+  IPC::Open,
+
+
+-------------
+
+* すべての章に perldoc 内の該当位置を示しておいてあげたい
+  ex) chr関数 → $ perldoc -f chr
+  ex) BEGINブロック → $ perldoc perlmod /BEGIN, CHECK, INIT and END
+

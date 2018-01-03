@@ -1,0 +1,108 @@
+- ..
+for $i (0 .. 5){}
+if (/FROM/ .. /END/);
+
+- ||={}
+$a = $a || {};
+
+- use bytes
+use bytes ();
+print        length($str);     # 2.
+print bytes::length($str);     # 6.
+
+- pseudohash
+$john = [ {age => 1, eyes => 2, weight => 3}, 47, "brown", 186 ];
+$john->{weight}   # Treats $john as a hashref
+$john->[3]        # Treats $john as an arrayref
+
+- backslash with ()
+@reflist = (\$s, \@a, \%h, \&f);     # List of four references
+@reflist = \($s,  @a   %h,  &f);     # Same thing
+# if only one array or hash
+@reflist = \(@x);                    # Interpolate array, then get refs
+@reflist = map { \$_ } @x;           # Same thing
+
+- perl built-in types
+SCALAR, ARRAY, HASH, CODE, GLOB, REF, LVALUE, IO, IO::Handle, and Regexp
+
+- weak references
+If you want to reclaim the memory any earlier, you usually have to explicitly break the reference or weaken it using the WeakRef module on CPAN.
+
+- pseudohash fields with class object
+use fields pragma.  Compile-time field name typo check.  fields with underscores (_) are treated as private fields.
+
+- other easy way to make class (create accessor methods)
+use Class::Struct.
+closures with foreach $field qw(name type){ *$field = sub { ... } }
+
+- more OOP modules
+check out Damian Conway's Tie::SecureHash module on CPAN. It implements restricted hashes with support for public, protected, and private persnicketations. It also copes with the inheritance issues that we've ignored in the previous example. Damian has also written an even more ambitious module, Class::Contract, that imposes a formal software engineering regimen over Perl's flexible object system. 
+
+- symbol tables
+$aaa = 'xxx';
+print \*main::aaa."\n";
+foreach my $nm (qw(SCALAR ARRAY HASH CODE GLOB IO NAME PACKAGE)){
+	print "$nm : ".*main::aaa{$nm}."\n";
+}
+
+- skipping END blocks
+There are two situations in which an END block (or a DESTROY method) is skipped. It isn't run if, instead of exiting, the current process just morphs itself from one program to another via exec. A process blown out of the water by an uncaught signal also skips its END routines. (See the use sigtrap pragma described in Chapter 31, "PragmaticModules", for an easy way to convert catchable signals into exceptions. For general information on signal handling, see "Signals" in Chapter 16, "InterprocessCommunication".) To avoid all END processing, you can call POSIX::_exit, say kill -9, $$, or just exec any innocuous program, such as /bin/true on Unix systems.
+
+}
+
+- command line option -aF:
+
+Turns on autosplit mode, but only when used with -n or -p. An implicit split command to the @F array is done as the first thing inside the implicit while loop produced by the -n and -p switches. So:
+
+% perl -F: -ane 'print pop(@F), "\n";'
+
+is equivalent to:
+
+LINE: while (<>) {
+    @F = split(':');
+    print pop(@F), "\n";
+}
+
+- installing modules to your directory
+
+% perl Makefile.PL LIB=/my/dir/perllib  \
+        INSTALLMAN1DIR=/my/dir/man/man1 \
+        INSTALLMAN3DIR=/my/dir/man/man3 \
+            INSTALLBIN=/my/dir/bin      \
+         INSTALLSCRIPT=/my/dir/scripts
+
+- getting ready to make CPAN modules
+
+% h2xs -X -n Foo::Bar
+
+- perl philosophy
+
+One of the principles underlying Perl's design is that simple things should be simple, and hard things should be possible. Documentation should be simple.
+
+Perl is designed to make the easy jobs easy, without making the hard jobs impossible. Perl makes it easy to manipulate numbers, text, files, directories, computers, networks, and programs. It also makes it easy to develop, modify, and debug your own programs portably, on any modern operating system.
+
+- rounding decimals
+$n = sprintf("%.0f", $f);   # round (not trunc) to nearest integer
+
+
+- open mode
+           Read    Write   Append  Create  Clobber
+Mode       Access  Access  Only    File    Existing
+< PATH     Y       N       N       N       N
+> PATH     N       Y       N       Y       Y
+>> PATH    N       Y       Y       Y       N
++< PATH    Y       Y       N       N       N
++> PATH    Y       Y       N       Y       Y
++>> PATH   Y       Y       Y       Y       N
+| COMMAND  N       Y       n/a     n/a     n/a
+COMMAND |  Y       N       n/a     n/a     n/a
+
+- opening pipe with 3 arg format
+
+open(PRINTER, "|-", "lpr-Plp1")    or die "can'tfork:$!";
+open(NET, "-|", "netstat-i-n")    or die "can'tfork:$!";
+
+
+- *.plx
+
+One note on the use of the .pl extension: it means Perl library, not Perl program. Although .pl is sometimes used to identify Perl programs on web servers that need to distinguish executable programs from static content in the same directory, we suggest that you use a suffix of .plx instead to indicate an executable Perl program. (Similar advice holds for operating systems that choose interpreters based on filename extensions.)

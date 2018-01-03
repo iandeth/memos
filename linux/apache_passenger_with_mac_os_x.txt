@@ -1,0 +1,50 @@
+$ gem install passenger
+$ passenger-install-apache2-module
+
+$ sudo vim /etc/apache2/httpd.conf
+
+    # uncomment
+    Include /private/etc/apache2/extra/httpd-vhosts.conf
+
+    # add these
+    LoadModule passenger_module /Users/iandeth/.rvm/gems/ruby-1.9.3-p125/gems/passenger-3.0.12/ext/apache2/mod_passenger.so
+    PassengerRoot /Users/iandeth/.rvm/gems/ruby-1.9.3-p125/gems/passenger-3.0.12
+    PassengerRuby /Users/iandeth/.rvm/wrappers/ruby-1.9.3-p125/ruby
+
+
+$ sudo vim /etc/apache2/extra/httpd-vhosts.conf
+
+    # main site
+    <VirtualHost *:80>
+        DocumentRoot "/Library/WebServer/Documents"
+    </VirtualHost>
+    
+    # any passenger site of your own
+    <VirtualHost *:80>
+        RailsEnv development
+        DocumentRoot "/Applications/MAMP/htdocs-myapp/public"
+        ServerName myapp.passenger.local.jp
+        <Directory /Applications/MAMP/htdocs-myapp/public>
+            Options Indexes FollowSymLinks -MultiViews
+            AllowOverride all
+            Order allow,deny
+            Allow from all
+        </Directory>
+        SetEnvIf Request_URI ^/assets is-assets
+        LogFormat "%h %l %u [%{%m/%d %H:%M:%S}t] \"%r\" %>s %b \"%{Referer}i\"" myapplog
+        CustomLog "/Applications/MAMP/htdocs-planbcd/log/httpd-access.log" myapplog env=!is-assets
+        ErrorLog "/Applications/MAMP/htdocs-planbcd/log/httpd-error.log"
+    </VirtualHost>
+
+
+$ sudo vim /etc/hosts
+
+    # add virtual host
+    127.0.0.1 www.yourhost.com
+
+# change mysql linking
+# http://stackoverflow.com/questions/4512362/rails-server-fails-to-start-with-mysql2-using-rvm-ruby-1-9-2-p0-on-osx-10-6-5
+$ sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Users/iandeth/.rvm/gems/ruby-1.9.3-p125/gems/mysql2-0.3.11/lib/mysql2/mysql2.bundle
+
+
+restart apache, and done :)

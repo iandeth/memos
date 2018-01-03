@@ -1,0 +1,26 @@
+[ruby]
+ftp://ftp.ruby-lang.org/pub/ruby/
+$ ./configure 
+$ make && make test && make install
+$ make install-doc
+
+
+[rubygems]
+http://rubyforge.org/frs/?group_id=126
+http://rubygems.org/
+$ ruby setup.rb
+
+
+[mysql ruby]
+http://rubyforge.org/frs/?group_id=4550
+http://www.kitebird.com/articles/ruby-mysql.html
+http://www.tmtm.org/en/mysql/ruby/
+$ ruby extconf.rb --with-mysql-config
+
+
+[DBI + DBD::Myql]
+http://rubyforge.org/projects/ruby-dbi/
+http://www.kitebird.com/articles/ruby-dbi.html
+$ ruby setup.rb config --with=dbi,dbd_mysql
+$ ruby setup.rb setup
+$ ruby setup.rb install

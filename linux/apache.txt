@@ -1,0 +1,25 @@
+## www で来たら強制リダイレクト
+<VirtualHost *:80>
+    ServerName www.foo.com
+    Redirect permanent / http://foo.com/
+</VirtualHost>
+
+## いろいろ
+<VirtualHost *:80>
+    ServerName foo.com
+    ## 条件マッチでリダイレクト
+    RedirectMatch permanent ^/bar/(.*) http://other.com/bar/$1
+    ## リバースプロキシ
+    ProxyRequests off
+    ProxyPass / http://other.com/
+    ProxyPassReverse / http://other.com/
+</VirtualHost>
+
+## assets expires
+<LocationMatch "^/assets/.*$">
+    Header unset Last-Modified
+    Header unset ETag
+    FileETag None
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+</LocationMatch>

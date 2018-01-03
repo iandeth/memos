@@ -1,0 +1,6 @@
+# Mac OS X terminal's keyboard mapping - redefined
+# http://www.ofb.biz/safari/article/476.html
+<CTRL-Left>  : \033[1;5C
+<CTRL-Right> : \033[1;5D
+<CTRL-Up>    : \033[1;5A
+<CTRL-Down>  : \033[1;5B

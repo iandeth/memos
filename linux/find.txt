@@ -1,0 +1,5 @@
+# execute command
+$ find . -name '*.swp' -exec rm {} \;
+
+# skip dir
+$ find . -path '*/.svn' -prune -or -name '*.pm' -print

@@ -1,0 +1,5 @@
+## against specific filetypes only
+ctags -R -h ".php.ctp.js.css.coffee"
+
+## verbose
+ctags -RV

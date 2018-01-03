@@ -1,0 +1,124 @@
+## installing rails on Mac OS X Leopard
+http://developer.apple.com/Tools/developonrailsleopard.html
+$ sudo gem update --system
+$ sudo gem install rails
+$ sudo gem update rake
+$ sudo gem update sqlite3-ruby
+
+
+##
+## basic commands
+## 
+$ rails my-app        # create new app
+$ ruby script/server  # start webrick server http://localhost:3000/
+
+##
+## script generate
+## 
+$ ruby script/generate controller foo  # create foo_controller.rb
+# create foo_controller.rb with 'bar' action
+$ ruby script/generate controller foo bar 
+$ ruby script/generate model product   # create model/product.rb
+
+##
+## db:migrate
+## 
+$ vim db/migrate/001_create_products.rb  # define columns and validations
+$ rake db:migrate                        # update database
+$ rake db:migrate VERSION=0              # revert to any old version
+$ ruby script/generate migration add_price_to_product                # create new migration
+# with product table's new price column definition
+$ ruby script/generate migration add_price_to_product price:decimal
+
+##
+## scaffold
+## 
+# create scaffold with 'product' model with prop definitions
+$ ruby script/generate scaffold product title:string description:text
+# create scaffold with 'product' model and 'admin' controller
+$ ruby script/generate scaffold product admin
+
+##
+## session
+## 
+# create session table in db
+$ rake db:sessions:create
+# edit config to enable db session
+$ vim config/environment.rb
+action_controller.session_store = :active_record_store
+# uncomment :secret for non-cookie session security
+$ vim app/controllers/application.rb
+protect_from_forgery :secret => '31df67faab80c48d620bacc4226e53d4'
+# clear all session data
+$ rake db:sessions:clear
+
+##
+## model: table relationship
+##
+class Product < ActiveRecord::Base
+    belongs_to :product
+    has_may :order
+end
+
+##
+## rails original properties, methods - controllers
+##
+# session object
+session
+session[:cart] = [ 'id002', 'id003' ]
+session[:cart] = Cart.new
+# session object for use with next http request only
+flash
+flash[:error] = 'Something is wrong'
+# path_info params
+# these can be configured with config/routes.rb
+params
+params[:id]
+# http request
+request
+request.xhr?   # is it XmlHttpRequest?
+# log recording
+logger
+logger.error 'invalid id'
+# will be writen in log file
+log/development.log
+
+##
+## view helpers
+##
+# dumpvalue (debug)
+<%= debug @product %>
+# an JavaScript generator in rjs templates
+page
+page.replace_html "cart", :partial => "cart", :object => @cart
+page[:hoge].visual_effect :highlight   # yellow fade id="hoge"
+
+##
+## tips
+##
+# make your local copy of API documentation HTML
+[src] Pragmatic: Agile Development With Rails 2nd Edition p.39
+$ rails dummy-app
+$ cd dummy-app
+$ rake rails:freeze:gems
+$ echo >vendor/rails/activesupport/README
+$ rake doc:rails
+$ cd doc/api  # you'll see index.html here
+
+# `rake rails:freeze:gems` won't work with
+# rails 1.2.x + rubygems 0.9.5 : so here's the alternative way
+[src] http://d.hatena.ne.jp/m4i/20071208/1197050955
+$ ruby -rrubygems/gem_runner `which rake` rails:freeze:gems
+
+# vim plugin for rails
+[src] http://www.vim.org/scripts/script.php?script_id=1567
+[src] http://d.hatena.ne.jp/secondlife/20061222/1166781841
+
+# copy new gem-updated rails lib to your project
+$ cd myproj
+$ rake rails:update
+
+# to disable database usage, add this line
+$ vim config/environment.rb
+config.frameworks -= [ :active_record ]
+

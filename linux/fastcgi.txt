@@ -1,0 +1,9 @@
+$ wget http://www.fastcgi.com/dist/mod_fastcgi-current.tar.gz
+$ cp Makefile.AP2 Makefile
+$ make && make install
+
+$ vim /etc/httpd/conf.d/fastcgi.conf
+LoadModule fastcgi_module /home/webservice/core/site_local/centos5.3/lib/httpd/modules/mod_fastcgi.so
+AddHandler fastcgi-script fcg fcgi fpl
+FastCgiIpcDir /var/run/fastcgi
+FastCgiConfig -maxProcesses 20 -idle-timeout 10 -initial-env PATH -initial-env LD_LIBRARY_PATH -initial-env PERL5LIB

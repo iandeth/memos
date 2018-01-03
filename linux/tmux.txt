@@ -1,0 +1,29 @@
+## attach to session
+$ tmux attach
+
+## force 256colors
+$ tmux -2
+
+## key bindings
+## with screen-keys.conf + vim-keys.conf in use
+## C-a + ...
+## [window]
+c  # create new window
+A  # rename window
+
+## [pane]
+s         # create new pane
+v         # create new virtical pane
+h|j|k|l   # move to (left|down|up|right) pane
+<|>       # resize pane width 10px
++|-       # resize pane height 10px
+M-[arrow] # resize pane w|h 5px
+{|}       # switch pane position
+M-[1-5]   # arrange pane (with 1-5 template)
+
+
+## 
+## commands
+##
+## send key-type to all panes
+:setw synchronize-panes on

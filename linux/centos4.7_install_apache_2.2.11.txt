@@ -1,0 +1,11 @@
+$ ./configure --enable-mods-shared=most --enable-ssl=shared --enable-proxy=shared --enable-layout=RedHat --with-included-apr
+$ make install
+$ vim /etc/init.d/httpd
+
+--- add the following -----
+if test -f /usr/sbin/envvars; then
+    . /usr/sbin/envvars
+fi
+
+$ chkconfig httpd on
+$ service httpd start

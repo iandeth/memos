@@ -1,0 +1,34 @@
+http://mongrel.rubyforge.org/wiki/MongrelCluster
+
+$ vim /etc/httpd/conf/httpd.conf
+-> add this mod_proxy_balancer setting:
+
+[mod_proxy_balancer sample]
+ProxyRequests Off
+<Proxy balancer://apviaapps>
+    BalancerMember http://127.0.0.1:3000
+    BalancerMember http://127.0.0.1:3001
+    BalancerMember http://127.0.0.1:3002
+</Proxy>
+ProxyPass        /apviaapps/ balancer://apviaapps/
+ProxyPassReverse /apviaapps/ balancer://apviaapps/
+
+$ adduser mongrel
+$ groupadd mongrel
+$ cp /usr/lib/ruby/gems/1.8/gems/mongrel_cluster-1.0.5/resources/mongrel_cluster /etc/init.d/mongrel_cluster
+$ sudo mongrel_rails cluster::configure -e production -p 8000 -N 3 -c /var/www/apps/testapp -a 127.0.0.1 --user mongrel --group users
+-> this will create /var/www/appps/testapp/config/mongrel_cluster.yml that looks like this:
+
+[mongrel_cluster.yml sample]
+---
+user: mongrel 
+group: users 
+cwd: /web/hthome/trials/apviaapps-tracker/rails 
+port: 3000
+environment: development
+log_file: /web/hthome/trials/apviaapps-tracker/rails/log/development.mongrel.log
+pid_file: /var/run/mongrel_cluster/apviaapps.pid
+servers: 3
+
+$ cp mongrel_cluster.yml /etc/mongrel_cluster/
+$ chkconfig mongrel_cluster on

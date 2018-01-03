@@ -1,0 +1,2 @@
+# ignore files
+grep -R --exclude="*\.svn-base"

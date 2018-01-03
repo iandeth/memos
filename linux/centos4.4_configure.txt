@@ -1,0 +1,269 @@
+# eth0
+
+  $ netconfig
+    GATEWAY: 192.168.127.2
+  $ ifdown eth0 && ifup eth0
+
+# iptables
+
+  $ vim /etc/sysconfig/iptables
+  -A RH-Firewall-1-INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+  -A RH-Firewall-1-INPUT -p tcp -m tcp --dport 21 -j ACCEPT
+  -A RH-Firewall-1-INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+  $ service iptables restart
+
+# gcc
+
+  $ yum install gcc
+  $ yum install gcc-c++
+
+# ntpd
+
+  $ ntpdate ntp.nc.u-tokyo.ac.jp
+  $ mv /etc/ntp.conf /etc/ntp.conf.org
+  $ vi /etc/ntp.conf
+    driftfile /var/lib/ntp/drift
+    server ntp.nc.u-tokyo.ac.jp
+  $ chkconfig ntpd on
+  $ service ntpd start
+
+# vim
+
+  # vim 7.1
+  $ wget "http://ftp.vim.org/pub/vim/unix/vim-7.1.tar.bz2"
+  $ bunzip2 -c vim-7.1.tar.bz2 | tar -xf -
+  $ ./configure --prefix=$HOME/site_local --with-features=big
+
+  # vim 7.0
+  $ wget "http://ftp.vim.org/pub/vim/unix/vim-7.0.tar.bz2"
+  $ bunzip2 -c vim-7.0.tar.bz2 | tar -xf -
+  $ ./configure --prefix=$HOME/site_local --enable-multibyte
+
+# screen
+
+  $ yum install screen
+  # or
+  $ wget "http://core.ring.gr.jp/pub/GNU/screen/screen-4.0.2.tar.gz"
+  $ vim screen.c
+    # line 879
+    if (strlen(LoginName) > 20) {
+      LoginName += (strlen(LoginName) - 20);
+      LoginName = SaveStr(LoginName);
+    }
+  $ ./configure --prefix=$HOME/site_local --enable-colors256
+
+# mecab
+
+  $ wget "http://downloads.sourceforge.net/mecab/mecab-0.95.tar.gz?modtime=1173627890&big_mirror=0"
+  $ ./configure --prefix=$HOME/site_local --with-charset=utf8
+  
+  $ wget "http://downloads.sourceforge.net/mecab/mecab-ipadic-2.7.0-20060707.tar.gz?modtime=1171283249&big_mirror=0"
+  $ ./configure --prefix=/usr --with-charset=utf8
+
+# senna
+
+  $ wget "http://iij.dl.sourceforge.jp/senna/25130/senna-1.0.5.tar.gz"
+  $ ./configure --prefix=$HOME/site_local LDFLAGS="-L$HOME/site_local/lib" CPPFLAGS="-I$HOME/site_local/include"
+  $ cpan get Senna
+  $ perl Makefile.PL
+    -I$HOME/site_local/include
+  $ make
+  $ cd t
+  $ perl -i.bak -MEncode -pe 'Encode::from_to($_,"euc-jp","utf8")' *.t
+  # but this test still fails...
+  $ cd .. && make test
+
+# mysql
+
+  $ wget "http://ftp.gnu.org/gnu/libtool/libtool-1.5.22.tar.gz"
+  $ ./configure && make install
+  $ wget "ftp://ftp.ring.gr.jp/pub/GNU/autoconf/autoconf-2.61.tar.gz"
+  $ ./configure && make install
+  $ wget "ftp://ftp.ring.gr.jp/pub/GNU/automake/automake-1.9.6.tar.gz"
+  $ ./configure && make install
+  $ wget "ftp://ftp.ring.gr.jp/pub/GNU/bison/bison-2.3.tar.gz"
+  $ ./configure && make check && make install
+  $ wget "ftp://ftp.ring.gr.jp/pub/GNU/ncurses/ncurses-5.6.tar.gz"
+  $ ./configure && make install
+  
+  $ wget "http://iij.dl.sourceforge.jp/tritonn/25406/tritonn-1.0.2.mysql-5.0.41.senna-1.0.5.tar.gz"
+  $ wget "http://dev.mysql.com/get/Downloads/MySQL-5.0/mysql-5.0.41.tar.gz/from/http://ftp.iij.ad.jp/pub/db/mysql/"
+  $ cd mysql-5.0.41
+  $ patch -p1 < ../tritonn-1.0.2.mysql-5.0.41.senna-1.0.5/mysql-5.0.41.senna.diff
+  $ libtoolize -c -f
+  $ aclocal
+  $ autoheader
+  $ automake-1.9 -c -a -i
+  $ autoconf
+  $ touch sql/sql_yacc.yy
+
+  $ ./configure "--prefix=$HOME/site_local" "--with-server-suffix=" "--enable-thread-safe-client" "--enable-local-infile" "--enable-assembler" "--with-pic" "--with-fast-mutexes" "--with-client-ldflags=-static" "--with-mysqld-ldflags=-static" "--with-big-tables" "--with-yassl" "--with-readline" "--with-archive-storage-engine" "--with-blackhole-storage-engine" "--with-ndbcluster" "--with-csv-storage-engine" "--with-example-storage-engine" "--with-federated-storage-engine" "--with-innodb" "--with-extra-charsets=complex" "--with-senna" "--with-mecab" "--with-charset=utf8" "--with-readline" "CC=gcc" "CFLAGS=-O2 -mcpu=pentium4" "CPPFLAGS=-I$HOME/site_local/include -DDEFAULT_THREAD_STACK=126976" "CXXFLAGS=-O2 -mcpu=pentium4 -felide-constructors" "CXX=gcc" "LDFLAGS=-L$HOME/site_local/lib"
+
+  $ make && make install
+  $ cp -r support-files /usr/mysql/support-files
+  $ cp -r scripts /usr/mysql/scripts
+  $ cp /usr/mysql/support-files/mysql.server /etc/init.d/mysql
+  $ chkconfig --add mysql
+  $ scripts/mysql_install_db
+  $ adduser mysql -g mtl
+  $ chown -R mysql:mtl /usr/mysql
+  $ vim /etc/profile
+      PATH=$PATH:/usr/mysql/bin
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/mysql/lib/mysql
+  $ mysql -u root mysql
+      GRANT grant option ON *.* to root;
+
+# perl modules
+
+  $ vim /etc/bashrc
+      LD_LIBRARY_PATH=/usr/mysql/lib/mysql:$LD_LIBRARY_PATH
+      export LD_LIBRARY_PATH
+  $ cpan install DBI DBD::mysql Apache::DBI
+  $ cpan install JSON::Syck YAML::Syck XML::TreePP
+  $ cpan install HTTP::Server::Simple
+  $ cpan install DateTime Time::HiRes
+  $ cpan install DateTime::Format::{Strptime,MySQL,HTTP,Mail}
+  $ cpan install IO::Capture
+  $ cpan install Compress::Zlib    # optional
+  $ cpan install CGI Devel::Symdump
+  $ cpan install FindBin::Real
+  $ cpan install Template
+  $ cpan install Location::GeoTool
+  $ cpan install XML::RSS XML::Feed
+  $ cpan install Bundle::CPAN
+  $ cpan install Text::CSV_XS
+
+# apache
+
+  $ wget "http://www.ring.gr.jp/archives/net/apache/httpd/httpd-2.0.59.tar.gz"
+  $ vim config.layout
+		<Layout APICenter>
+		    exec_prefix:   ${prefix}
+		    bindir:        ${prefix}/bin
+		    sbindir:       ${prefix}/bin
+		    libdir:        ${prefix}/lib
+		    mandir:        ${prefix}/man
+		    sysconfdir:    ${prefix}/etc/httpd/conf
+		    libexecdir:    ${prefix}/lib/httpd/modules
+		    datadir:       ${prefix}/var/www
+		    installbuilddir: ${datadir}/build
+		    errordir:      ${datadir}/error
+		    iconsdir:      ${datadir}/icons
+		    htdocsdir:     ${datadir}/html
+		    manualdir:     ${datadir}/manual
+		    cgidir:        ${datadir}/cgi-bin
+		    includedir:    ${prefix}/include/httpd
+		    localstatedir: ${prefix}/var
+		    runtimedir:    ${localstatedir}/run
+		    logfiledir:    ${localstatedir}/log/httpd
+		    proxycachedir: ${localstatedir}/cache/httpd
+		</Layout>
+  $ ./configure "--prefix=$HOME/site_local" "--enable-layout=APICenter" "--enable-proxy" "--enable-rewrite" "--enable-mods-shared=all" "CC=gcc" "CFLAGS=-O2 -mcpu=pentium4" "CPPFLAGS=-I$HOME/site_local/include" "CXXFLAGS=-O2 -mcpu=pentium4 -felide-constructors" "CXX=gcc" "LDFLAGS=-L$HOME/site_local/lib"
+  $ cp build/rpm/httpd.init $HOME/site_local/etc/init.d/httpd
+  $ vi $HOME/site_local/etc/init.d/httpd
+  $ cp build/rpm/httpd.logrotate $HOME/site_local/etc/logrotate.d/httpd
+  $ vi $HOME/site_local/etc/init.d/httpd
+
+# apache (lightinfra web server)
+
+  $ ./configure --prefix=/usr/local/apache "--enable-so" "--enable-rule=SHARED_CORE" "--enable-shared-remain" "--enable-proxy" "--enable-proxy-connect" "--enable-proxy-http" "--enable-proxy-ftp" "--enable-rewrite"
+
+# mod_perl 2.0.x
+
+  $ yum install httpd-devel
+  # or
+  $ wget "http://perl.apache.org/dist/mod_perl-2.0-current.tar.gz"
+  
+  $ perl Makefile.PL PREFIX=$HOME/site_local MP_APXS=$HOME/site_local/bin/apxs
+  # for light infra web servers:
+  $ perl Makefile.PL PREFIX=$HOME/site_local MP_APXS=/usr/local/apache/bin/apxs MP_AP_DESTDIR=$HOME/site_local/share/light_infra/apache
+  $ make test
+  $ make install
+
+  $ vim /etc/httpd/conf.d/perl.conf
+  $ mkdir -p /etc/httpd/lib/perl
+  $ vim /etc/httpd/lib/perl/startup.pm
+
+# subversion
+
+  $ wget http://www.webdav.org/neon/neon-0.26.1.tar.gz
+  $ ./configure "--prefix=$HOME/site_local" "CC=gcc" --with-ssl
+  $ wget http://subversion.tigris.org/downloads/subversion-1.4.4.tar.gz
+  $ ./configure "--prefix=$HOME/site_local" "CC=gcc" --disable-mod-activation --with-apxs --with-ssl
+
+  # or with yum ...
+  # $ yum install subversion
+  # Installing:
+  #  subversion              i386       1.1.4-2.ent
+  # Installing for dependencies:
+  #  apr                     i386       0.9.4-24.5.c4.2
+  #  apr-util                i386       0.9.4-21
+  #  guile                   i386       5:1.6.4-14
+  #  neon                    i386       0.24.7-4
+  #  swig                    i386       1.3.21-6
+  #  umb-scheme              i386       3.2-36.EL4
+
+# ruby
+
+  $ wget "ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6.tar.gz"
+  $ ./configure "--prefix=$HOME/site_local" "CC=gcc" "CFLAGS=-O2" "CPPFLAGS=-I$HOME/site_local/include" "CXXFLAGS=-O2" "CXX=gcc" "LDFLAGS=-L$HOME/site_local/lib"
+  
+# rubygems + rake
+
+  $ wget "http://rubyforge.org/frs/download.php/20989/rubygems-0.9.4.tgz"
+  $ vi ~/.bashrc
+      export GEM_HOME=$HOME/site_local/lib/ruby
+  $ ruby setup.rb config --prefix=$HOME/site_local
+  $ gem install -r rake
+
+# MySQL/Ruby + uconv
+
+  $ wget "http://tmtm.org/downloads/mysql/ruby/mysql-ruby-2.7.3.tar.gz"
+  $ ruby extconf.rb --with-mysql-config
+  $ ruby ./test.rb 127.0.0.1 root "" test  # 2 tests fail
+  $ wget "http://www.yoshidam.net/uconv-0.4.12.tar.gz"
+  $ ruby extconf.rb && make install
+
+# USB floppy disk drive mount
+
+  $ mount -t vfat /dev/sda1 /mnt/usb
+
+# QR code with GD
+
+  # zlib
+  $ wget http://www.zlib.net/zlib-1.2.3.tar.gz
+  $ ./configure "--prefix=$HOME/site_local"
+  $ make test && make install
+  # libpng
+  $ wget http://prdownloads.sourceforge.net/libpng/libpng-1.2.18.tar.gz
+  $ ./configure "--prefix=$HOME/site_local"
+  $ make check && make install
+  # jpeg6b
+  $ wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz
+  $ ./configure "--prefix=$HOME/site_local" "--enable-shared"
+  $ make check && make install
+  # freetype
+  $ wget http://download.savannah.gnu.org/releases/freetype/freetype-2.3.4.tar.gz
+  $ ./configure "--prefix=$HOME/site_local"
+  $ make install
+  # gd
+  $ wget http://www.libgd.org/releases/gd-2.0.35.tar.gz
+  $ ./configure "--prefix=$HOME/site_local" "CC=gcc" "CXXFLAGS=-O2" "CXX=gcc"
+  # perl GD::Barcode
+  $ wget http://search.cpan.org/CPAN/authors/id/L/LD/LDS/GD-2.35.tar.gz
+  $ perl ./Makefile.PL PREFIX=~/site_local
+  # wget http://search.cpan.org/CPAN/authors/id/K/KW/KWITKNR/GD-Barcode-1.15.tar.gz
+  $ perl ./Makefile.PL PREFIX=~/site_local
+
+# php
+
+  $ wget ftp://xmlsoft.org/libxml2/libxml2-2.6.29.tar.gz
+  $ ./configure --prefix=$HOME/site_local "CC=gcc" "CFLAGS=-O2" "CXXFLAGS=-O2 -mcpu=pentium4" "CXX=gcc"
+
+  $ wget http://jp.php.net/get/php-5.2.3.tar.gz/from/this/mirror
+  $ ./configure --prefix=$HOME/site_local --with-apxs2 --with-mysql=$HOME/site_local --with-iconv --enable-mbstring --enable-zend-multibyte --with-zlib --enable-exif --enable-mbregex --with-gd=$HOME/site_local --with-pear --with-libxml-dir=$HOME/site_local --with-jpeg-dir=$HOME/site_local --with-png-dir=$HOME/site_local --with-zlib-dir=$HOME/site_local --with-freetype-dir=$HOME/site_local --enable-gd-native-ttf --enable-gd-jis-conv
+  $ cp php.ini-default $HOME/lib/php.ini
+  $ vi $HOME/apache/conf/httpd.conf
+      LoadModule php5_module $HOME/site_local/apache/modules/libphp5.so
+      AddType application/x-httpd-php .php
+      AddType application/x-httpd-php-source .phps

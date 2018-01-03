@@ -1,0 +1,2 @@
+# auto detect fast mirror repository
+$ yum install yum-fastestmirror

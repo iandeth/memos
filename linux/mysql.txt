@@ -1,0 +1,9 @@
+## mysqld process memory usage calculation
+total = key_buffer_size + 
+    ( read_buffer_size + sort_buffer_size ) * max_connections
+
+
+## create database
+CREATE DATABASE test DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+GRANT ALL PRIVILEGES ON test.* TO 'webservice'@'%' WITH GRANT OPTION;
+GRANT RELOAD ON *.* TO 'webservice'@'%';

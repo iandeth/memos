@@ -1,0 +1,73 @@
+http://i.loveruby.net/ja/rhg/book/
+
+1章 - 制御構造
+条件式ではfalseとnilという二つのオブジェクトだけが偽で、残りのあらゆるオブジェクトは真になる。0や空文字列ももちろん真だ。
+
+
+lvalueのカッコは多次元うけとりになる。グルーピングにならない
+a, (b,c), d = [1, [2,3], 4]
+
+
+配列受け取りしたいならカンマを
+a = [1,2,3] → a.class = array
+a, = [1,2,3] → a = 1
+
+
+TOP LEVEL Object hierarchy
+Object > Module > Class
+
+
+objectの解釈はコンテキストによる (p.342)
+def a
+    print "Function 'a' called\n"
+    99
+end
+for i in 1..2
+    if i == 2
+        print "a=", a, "\n"
+    else
+        a = 1
+        print "a=", a, "\n"
+    end
+end
+produces:
+a=1
+Function 'a' called
+a=99
+
+
+正規表現 m// のオプション s は m に吸収されている
+perl → m//xms
+ruby → m//xm
+sはkcode=sjis指定なので注意
+
+
+Moduleとは
+インスタンス化できないクラスと思うべし。Mix-in専用。
+あるいは便利関数の寄せ集め。
+module Hoge
+  def fuga { puts 'fuga' }
+end
+fuga()      # 正
+Hoge.fuga() # 誤
+※別Class内で module_function :fuga とかすれば SomeClass.fuga で使えるようにもなる
+※別Class内で extend Hoge してもOK → SomeClass.fuga()
+
+
+クラス定義は実行コードでもある！ 'Class' インスタンスとして動作中。
+class Hoge
+  @p1 = 100;
+  puts self.class
+  def initialize
+    @p1 = 1;
+  end
+  def inc
+    @p1 += 1;
+  end
+  def self.inc
+    @p1 += 100;
+  end
+end
+x = Hoge.new
+puts x.inc
+puts Hoge.inc

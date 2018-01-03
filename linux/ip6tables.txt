@@ -1,0 +1,11 @@
+## how to disable
+$ vim /etc/sysconfig/network
+
+  NETWORKING_IPV6=no
+
+$ vim /etc/modprobe.d/disable-ipv6.conf
+
+  options ipv6 disable=1
+
+$ sudo chkconfig ip6tables off
+$ sudo reboot

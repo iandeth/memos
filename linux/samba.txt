@@ -1,0 +1,14 @@
+# yum install
+$ yum install samba samba-client samba-swat
+
+# for public share folder
+$ useradd -c "user for samba public dir" -m -g users -p samba-share! samba-share
+
+# for /home/bashi user folder
+$ pdbedit -a bashi
+
+# start daemon
+$ service smb start
+
+# test login with samba client
+$ smbclient -U bashi //localhost/public

@@ -1,0 +1,15 @@
+## from http://jfire.io/blog/2012/03/02/xcode-4-dot-3-homebrew-and-ruby/
+$ brew update
+$ brew install autoconf automake
+$ brew install https://raw.github.com/Homebrew/homebrew-dupes/master/apple-gcc42.rb
+
+$ curl -L get.rvm.io | bash -s stable
+$ echo 'rvm_archflags="-arch x86_64"' >> ~/.rvmrc
+$ echo 'source /Users/iandeth/.rvm/scripts/rvm' >> ~/.bash_profile
+$ . ~/.bash_profile
+$ rvm install 1.9.3-head
+
+## from http://iandeth.dyndns.org/mt/ian/archives/000693.html
+$ ARCHFLAGS="-arch x86_64" gem install mysql2 -- --with-mysql-config=/usr/local/mysql/bin/mysql_config
+$ echo 'export DYLD_LIBRARY_PATH=/usr/local/mysql/lib:$DYLD_LIBRARY_PATH' >> ~/.bash_profile
+$ gem install sqlite3 rails --no-rdoc --no-ri

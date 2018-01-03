@@ -1,0 +1,706 @@
+SCREEN SCROLL
+    CTRL-e  - scroll 1 line down
+    CTRL-y  - up
+    CTRL-d  - scroll half screen down
+    CTRL-u  - up
+    CTRL-f  - scroll full screen down
+    CTRL-b  - up
+
+    zz   - cursor pos at screen center
+    zt   - top
+    zb   - bottom
+
+    50%  - move down half way of entire file
+
+MOVE | BASIC
+    w    - next word
+    e    - next end of word
+
+    b    - back word
+    ge   - back end of word
+
+    fx   - move to letter 'x'
+    Fx   - backword to 'x'
+    ;    - repeat fh forward
+    ,    - repeat fh backward
+
+    tx   - move to 1 letter before 'x'
+
+    $    - end of line
+    0    - beginning of line
+    ^    - first word in line
+
+    I    - move to first word in line + insert mode
+    A    - move to end of line + insert mode
+
+    H    - move to top line in screen
+    M    - to middle line
+    L    - to bottom line
+
+MOVE | JUMP
+    gg      - beginning of file
+    G       - end of file
+    12G     - to line 12
+
+    ``      - jump to previous cursor pos
+    CTRL-O  - back 1 jump history
+    CTRL-I  - next
+    :jumps  - list jump history
+
+    ma      - put mark 'a' on cursor pos (a-z)
+    `a      - jump to mark 'a'
+    'a      - jump to beginning of line of mark 'a'
+    `.      - jump to last change pos
+    `"      - jump to last cursor pos (on file move)
+    mA      - put global mark (A-Z)
+    :marks  - show list of marks
+
+    [[      - jump to beginning of outer most block in program
+    ][      - end of
+    [{      - beginning of current block
+    ]}      - end of
+    [(      - beginning of current bracket
+    ])      - end of
+    [m      - java/c++ beginning of current method
+    ]m      - java/c++ end of
+
+    gD      - move to var definition line in same file
+
+CHANGE/DELETE
+    cl   - change 1 letter [ s ]
+    cw   - change 1 word
+    c$   - change rest of the line [ C ]
+    cc   - change whole line [ S ]
+
+    x    - delete letter
+    X    - delete letter left of cursor
+
+    dw   - word
+    d2w  - 2 words
+    d$   - all through the end of line [ D ]
+    dd   - the whole line
+    de   - word (but not white space)
+
+    .    - repeat last change command
+
+    daw  - delete a word (text object: aw)
+    ct)  - change words until letter ')'
+    dis  - delete current sentence
+
+    CTRL-a  - increment number
+    CTRL-x  - decrement
+
+UNDO/REDO
+    u       - undo 1 action
+    U       - undo whole line
+    CTRL-R  - redo
+
+    g-         - go back time in undo tree
+    g+         - go forward
+
+    :undolist     - list changes with laptime
+    :earlier 10m  - go back time 10minutes
+    :latter  1h   - go forward 1 hour
+
+
+COPY/PASTE
+    p     - paste last deletion
+    P     - paste before cursor
+    yy    - yank current line
+    yiw   - yank cursor pos word (yank inner word)
+
+    :set paste - paste mode (turnoff autoindent)
+
+    "fyy  - copy to register 'f'
+    "fdd  - delete line and copy to 'f'
+    "fp   - paste text in register 'f'
+
+    "Fyy  - capital letter, append more to register 'f'
+
+INSERT/FORMAT
+    o        - new line
+    O        - new line above
+    a        - shorcut word append
+
+    >>                  - indent
+    <<                  - remove indent
+    :set shiftwidth=4   - set indent width to 4 spaces [ :sw ]
+    :set softtabstop=4  - insert 4 spaces when <Tab> key pressed
+    :set expandtab      - do not collapse 4 spaces to <Tab>
+    :set tabstop=4      - display <Tab> as 4 spaces.
+
+    :move 0  - move current line to top of file [ :m ]
+
+    :set ve=all  - essential for making table layouts [ :virtualedit ]
+    :set ve=     - disable
+
+    gqG      - delete all \n and fit to textwidth (target = G)
+    gqap     - same, with target = current paragraph
+
+    :set fileformat=mac
+        replace all <LF> with <CR>. mac/dos/unix [ ff ]
+
+
+VISUAL SELECT MODE
+    v          - by letter
+    V          - by line
+    o/O        - move to other end of selection
+
+    J          - remove \n and join all lines
+
+    >          - indent selection
+    <          - delete indent
+    gq         - format text (e.g. format comment lines)
+
+    :center    - center align selection
+    :right     - right align
+    :left 4    - left align, with left-margin 4
+
+    CTRL-v     - by block
+    Ix<Esc>    - prepend text 'x' in every line
+    Ax<Esc>    - append text
+    cx<Esc>    - delete and replace each line with text 'x'
+    Cx<Esc>    - delete block + rest of line and replace
+    U          - to upper case
+    u          - to lower case
+    =          - format indention (by filetype def)
+
+    gv         - select the previous area again
+
+    Va{        - select current block in program code (a block)
+    Vi{        - select inner content of current block (inner block)
+
+INFO
+    CTRL-g          - show status info
+    g CTRL-g        - show count of lines, words and bytes (also with v)
+
+    :set nu         - turn on line numbers [ :number ]
+    :set nonu       - off
+    :set ruler      - always show line info [ ru ]
+    :set showcmd    - always show keystroke [ sc ]
+    :set showmode   - always show current mode [ smd ]
+    :set showmatch  - emphasize matching brackets ()[]{} [ sm ]
+
+    :sy on          - highlight syntax [ syntax ]
+    :color x        - change highlighting to theme 'x' [ :colorscheme ]
+
+    :mkview 1       - store window outlook of current file (1-9, or blank)
+    :loadview 1     - load outlook
+
+    CTRL-l          - redraw screen [ :redr ][ :redraw ]
+
+    :set listchars=tab:>-,trail:-
+    :set list
+        show tabs + trailing white spaces
+
+    :scriptnames    - display which .vimrc and plugins are loaded
+    :version        - show vim version and compile options
+
+    ga              - show cursor pos character's byte info
+
+REPLACE
+    r  - replace 1 letter
+    R  - replace all you want
+
+    s/old/new/     - replace first match
+    s/old/new/g    - all in line
+    %s/old/new/g   - in whole file
+    #,#s/old/new/g - in line #,#
+    s/old/new/c    - ask each time
+    s/old/new/p    - print changed line
+    s/old/new/e    - not an error on zero-match
+
+    g/pattern/command - do command like s/// to pattern matched lines
+
+    gUw  - make current word uppercase
+    guw  - lowercase
+    g~w  - switch case
+    gUU  - uppercase whole line
+
+    :%retab - change tab format between softtab and real <Tab> s, based on current expandtab setting
+
+SEARCH
+    /phrase     - regexp search
+    ?phrase     - regexp search (backward)
+    n           - next hit
+    N           - previous hit
+    %           - find matching ()[]{} and back
+
+    *           - search with word under cursor
+    #           - backward
+
+    :set ic     - ignore case [ :ignorecase ]
+    :set noic   - off
+
+    :set hls    - highlight search word [ :hlsearch ]
+    :set nohls  - off
+    :nohls      - temp off
+
+    :set is     - incremental search [ :incsearch ]
+    :set nois   - off
+
+    :set ws     - wrap scan [ :wrapscan ]
+    :set nows   - off
+
+	:find [regexp]     - search for matching file under curdir (like shell find)
+	:sfind [regexp]    - search and edit in split window
+	:tabfind [regexp]  - search and edit in new tab
+
+REGEXP
+    \t           - tab character \n \r ... all works
+    \d           - same as [0-9]
+    \s           - white spaces
+    \w           - word characters
+    /\<the\>     - word delimiter
+    /a*          - wildcard
+    /a\+         - wildcard without white space
+    /a\|b        - a or b
+    /a\{3,5}     - repeatance 3-5 times
+    s/\(a\)/\1/  - backreferences , define with \( \) get with \1
+    [a-z]        - character ranges
+    \Cword       - match case for 'word'
+    \cword       - ignore case for 'word'
+
+FILE READ/WRITE
+    :cd x      - set current directory to x
+    :lcd x     - change directory only for current window
+    :pwd       - show current dir
+
+    :w         - write to file [ :write ]
+    ZZ         - write and quit
+
+    #,#w       - write only #,# lines
+    :saveas x  - write as file name 'x'
+    :up        - write only if modified [ :update ]
+
+    :r x       - read file 'x' and paste to cursor pos [ :read ]
+    :0r x      - paste at top of file
+    :$r x      - paste at end of file
+
+    :e x       - open file 'x' with vim [ :edit ]
+    :e x y z   - open 3 files
+    :e x<Tab>  - file name autocomplete
+    :wn        - save changes and to next file [ :wnext ]
+    :wp        - to previous [ :wprevious ]
+    CTRL-^     - switch back
+
+    :ar             - show list of open files [ :args ]
+    :ar a b c       - reset list and open files
+    :arge d         - add file 'd' to list and edit [ :argedit ]
+    :arga d e f     - add multiple files to list [ :argadd ]
+    :set autowrite  - auto write on move
+
+    $ vim -R hoge   - open hoge in read-only mode
+    $ view hoge     - same
+
+    $ vim -r hoge   - open file with recovery from swap
+
+    :ls             - display all files in buffer [ :buffers ]
+    :b 2            - edit #2 in buffer list [ :buffer ]
+    :b x            - edit file 'x' in list
+    :bd 2           - delete #2 from list [ :bdelete ]
+    :bn             - move to next in list [ :bnext ]
+    :bp             - move previous [ :bprevious ]
+    :b <Tab>        - move to next file (increment show filename)
+    :sb x           - split window and edit 'x' in list
+    :badd y         - add file 'y' to list
+    :hide e y       - add file 'y' to list and activate
+
+    :argdo {cmd}    - do command to all files in arg list
+    :bufdo {cmd}    - in buffer list
+
+    :w ++enc=sjis hoge.txt  - write current content in sjis encoding to file hoge.txt
+
+MULTI WINDOWS
+    CTRL-w s       - split current file in 2 windows [ :split ]
+    CTRL-w w       - swith active window [ CTRL-w CTRL-w ]
+    CTRL-w c       - close window [ :close ]
+    CTRL-w o       - close except current [ :only ]
+
+    CTRL-w [hjkl]  - move active window with directions [ arrow keys ]
+    CTRL-w [HJKL]  - move window pos. with dirs
+
+    :split x       - open file 'x' in new window  [ :sp ]
+    CTRL-w n       - open blank window [ :new ]
+
+    CTRL-w v       - split in 2 vertical windows [ :vsplit ]
+    :vnew          - make blank vertical window
+
+    CTRL-w =       - make all windows equal size
+    CTRL-w 5 +     - increase window height 5 lines
+    CTRL-w 5 -     - decrease
+    CTRL-w 5 _     - set window height to 5 lines
+    CTRL-w 5 <     - decrease window width 5 letters
+    CTRL-w 5 >     - increase
+    CTRL-W 5 |     - set window width to 5 letters
+
+    :all           - make windows for files in arg list
+    :vall          - vertical
+
+    :wall          - save all
+    :wqall         - save and quit all windows
+
+    :lcd x         - change current local directory of window
+
+    $ vim -o x y z  - open in 3 multi windows
+    $ vim -O x y z  - vertical
+
+    :windo {cmd}    - do command to all window
+
+    :vert {cmd}     - do command and open in new vertical window
+                      * if the command opens a new window
+    :vert help tags - above example
+
+CONFIG
+    :set encoding=utf-8  - set vim's internal encoding to utf-8
+    :set fileencoding=x  - set file's enc to 'x'. conversion occurs
+
+    :set nocompatible    - pure vim ability on [ -f .vimrc ]
+    :set autoindent      - auto indention [ :ai ]
+    :set smartindent     - auto indent on {} braces [ :si ]
+    :set history=50      - commands and regexp history
+
+    :filetype plugin on  - enable file type plugins
+    :set filetype=perl   - specify file type
+
+    :set tw=78           - auto insert <LF> on right edge [ :textwidth ]
+    :set wrap            - wrap long text (no <LF> insert)
+    :set lbr             - wrap smarter (with wrap on) [ linebreak ]
+
+    :set backup          - make backup file~
+    :set backupext=.bak  - use .bak instead of ~
+    :set patchmode=.org  - make bakup file of original *.org
+
+    :options             - show quick reference and edit setting
+
+    :set whichwrap=b,s,<,>,[,]
+        cursor move between lines
+
+EXTERNAL
+    :!{command}  - execute shell command
+    :r !ls       - append output of ls command to cursor pos
+
+    :w !wc       - pass whole text to wc command
+
+    !{range}{command}
+        do command to text in range, and replace it with the
+        result. Ex) !5Gsort
+    !!{command}
+        range is current line
+
+RECORDING
+    qa          - start recording at register a (a-z), q to stop
+    @a          - replay register a
+    3@a         - replay 3 times
+    @@          - replay last register
+    :registers  - show list of registers
+
+    qA          - capital letter, append more to register a
+
+COMMAND LINE
+    <Tab>    - auto complete command names and file names
+    CTRL-d   - list all candidates
+
+    :se<Up>  - go back history that starts with :se
+
+    CTRL-b   - move to beginning
+    CTRL-e   - move to end
+    CTRL-w   - delete word
+    CTRL-u   - undo all
+    CTRL-c   - cancel and go back editing
+
+    q:       - enter command line window
+
+FOLDING
+    V zf        - fold visual selected lines
+    zf4j        - fold next 4 lines
+    zfap        - fold a paragraph
+
+    zo          - open  [ <Right> ]
+    zc          - close again
+
+    zn          - disable folding
+    zN          - bring back folding as it was
+    zi          - toggle
+
+    zd          - delete fold
+
+    zr          - open all folds, 1 nest level deep
+    zm          - open all folds, 1 nest level deep
+    zR          - open all folds, all nest level
+    zM          - close all folds, all nest level
+
+    :set foldcolumn=4
+        prepend '+-- ' to all folded blocks
+
+    :set foldmethod=indent
+        auto set folds on all indented blocks
+
+MACRO MAPPING
+    :map x i{<Esc>ea}  - define 'x' key macro hoge -> {hoge}
+    :map               - list current mappings
+
+    :imap <F2> hoge  - define mapping for insert mode
+    :cmap ...        - for command line
+    
+    :noremap gQ q    - do not remap latter letter
+
+    :unmap x         - delete 'x' key mapping
+    :mapclear        - delete all mapping
+
+    :iab #d Dumpvalue->new->dumpValue()
+        set #d as abbreviation. typing '#d' in insert mode
+        will auto replace to Dumpvalue~  [ :iabbrev ]
+        * somewhat #dv (sharp plus 2 chars) can't be used
+    :ab        - list all abbreviations [ :abbreviate ]
+    :unab #d   - delete definition #d
+    :abclear   - delete all definition
+
+FILE EXPLORER
+
+    :e .     - open current dir with file explorer
+    -        - up 1 directory tree
+    u        - move history back
+    U        - move history forward
+    c        - set 'current directory' to this dir
+
+    <Enter>  - start editing file
+    o        - open in new window (horizontal split)
+    v        - open in new window (virtical split)
+    t        - open in new tab
+    O        - open in previous window [vim7.0<]
+    P        - open in previous window [vim7.0>=]
+
+    CTRL-l   - update file listing
+
+    i        - change listing format
+    s        - sort files
+    R        - rename selected file
+    D        - delete file
+    d        - create new directory
+
+    mb       - bookmark directory
+    gb       - goto bookmark
+    [0-9]b   - bookmark directory
+    [0-9]B   - goto bookmarked directory
+    qb       - list bookmarks (and histories)
+
+    ?               - brief help
+    :NetrwSettings  - comprehensive help
+
+    :Rexplore       - jump back to last open file explorer
+    :Explore **/*.css  - find all subdirectory for *.css file (find)
+    :Explore **//hoge  - find all subdirectory for files with word 'hoge' (grep)
+    :VExplore **/*.css - find and show explorer vertically
+    :Nexplore          - goto next match dir with Explore **/*.css
+    :Pexplore          - goto prev match
+    
+
+SUSPEND/RESUME
+    CTRL-z            - suspend vim and back to shell
+    $ fg              - resume vim
+
+    :mksession x.vim  - save current session to file 'x.vim' [ :mks ]
+    :source x.vim     - resume session from 'x.vim' [ :so ]
+    $ vim -S x.vim    - same
+
+JUMPING AROUND FILES - TAGS
+    CTRL-]     - jump to definition of the tag word at cursor pos
+    CTRL-T     - back 1 history
+    :tag       - go forward 1 history
+    :tags      - list tag jump history
+
+    :tag hoge  - jump to definition of word 'hoge'
+    :stag hoge - jump to 'hoge' with split window
+    CTRL-W ]   - jump to cursor pos word with split window
+
+    :tn            - goto next hit place [ :tnext ]
+    :tp            - goto previous hit place [ :tprevious ]  
+    :tselect       - list all previous search match
+    :tselect hoge  - list all 'hoge' match and choose one
+
+    :tag hoge<Tab>  - auto complete tag name
+    :tag /hoge      - regexp search
+
+    :ptag hoge  - preview definition with new window, cursor pos unchanged.
+    CTRL-W }    - same
+    :pclose     - close preview window
+
+INSERT MODE SPECIALS
+    CTRL-[  - same as <Esc>
+
+    CTRL-a  - insert text of last insert mode 
+    CTRL-i  - indent
+    CTRL-w  - delete prev word
+    CTRL-u  - delete prev changes
+    CTRL-h  - delete prev letter
+
+    CTRL-o {command}  - execute normal mode command
+
+    CTRL-t         - indent the whole line
+    CTRL-d         - delete line indent
+
+    CTRL-n         - autocomplete keywords in insert mode
+    CTRL-p         - previous keyword
+    CTRL-{p,n} CTRL-y - accept selection in complete popup list
+    CTRL-{p,n} CTRL-e - cancel autocomplete
+
+    CTRL-x CTRL-o  - programming syntax completion (omni completion)
+    CTRL-x CTRL-d  - programming definition 
+
+    CTRL-y         - insert letter of above line
+    CTRL-e         - insert letter of bottom line
+
+    CTRL-r x       - paste text in register 'x'
+
+    CTRL-v <Esc>   - insert literal <Esc> character
+    CTRL-v \x0b    - insert character in hexadecimal
+
+DIFF
+    $ vimdiff x y  - diff file 'x' and 'y'
+    :diffsplit x   - open diff 'x' and current file
+    :diffupdate    - update diff result
+
+    zo             - open fold section
+    zc             - close
+    ]c             - jump to next different line
+    [c             - reverse direction
+    dp             - paste changes to the original file
+    do             - paste original to the changed file
+
+QUICK FIX
+    :vimgrep hoge /path/**
+    :grep hoge /path/**
+        find all files which contains the word 'hoge'
+        vimgrep - slower, but auto ignore .svn dirs, use /\c/ for ignorecase
+        grep - use OS grep command, set 'grepprg' for customization
+
+    :cn  - go to next match pos [ :cnext ]
+    :cp  - go to previous [ :cprevious ]
+    :cl  - list opend files [ :clist ]
+    :cw  - open quickfix list explorer [ :cwindow ]
+
+GUI (windows only)
+    :browse edit  - open file explorer and edit [ :bro e ]
+    :browse split - open in split window [ :bro sp ]
+
+    :set browsedir=last
+        default file explorer dir to last opened dir (buffer|current)
+
+TABPAGE
+    :tabnew    - open new tab
+    :tabe file - open new tab with file opened 
+    :tabc      - close current tab [ :tabclose ]
+    :tabn      - move to next tab [ gt ]
+    :tabp      - move to previous tab [ gT ]
+    :tabm N    - move current tab to N th tab pos [ :tabmove ]
+    :tab sp    - create new tab with current file [ :tab split ]
+    :tab sb N  - create new tab with Nth buffer file [ :tab sbuffer ]
+    :tab ball  - open all buffer in tab
+    :tab help hoge - create new tab with help page of 'hoge'
+
+PLUGIN: Buffer Explorer
+    \be     - display buffer explorer
+    q       - close buffer explorer
+
+    in buffer explorer:
+    <F1>    - help
+    <Enter> - open selection
+    t       - open selection in new tab
+    D       - delete file from buffer
+    s       - change sorting
+
+PLUGIN: MiniBufExplorer
+    \mbe    - display buffer explorer
+    \mbc    - close buffer explorer
+    \mbt    - toggle open/close
+
+    in buffer explorer:
+    <Tab>   - move to next file (Shift-Tab for previous)
+    <Enter> - open selection
+    d       - delete file from buffer
+
+    problem:
+    gets confusing when opening 3 or more multi window.
+    gets confusing when opening A/Base.pm, B/Base.pm, C/Base.pm at the same time.
+
+PLUGIN: Tag List
+    # Exuberant ctags must be installed 
+    let Tlist_Ctags_Cmd = 'path/to/ctags'
+
+    TlistOpen           - open tag list
+    TlistToggle         - toggle open/close
+    :help taglist-intro - display help
+
+    problem:
+    doesn't create tags file, so we can't use CTRL-] and related tag commands.
+
+PLUGIN: SrcExplorer
+    <F8>     - open srcexplorer window and update tags file
+
+    in srcexplorer window:
+    <Enter>  - open selected file
+    <Space>  - get back to previous file
+
+    problem:
+    automatically chdir to tags file directory, so current dir gets changed.
+
+PLUGIN: TagsParser
+    :TagsParserToggle    - open tag list window
+
+    problem:
+    doesn't work well with linux screen app. 
+
+PLUGIN: eregex
+    :M     - find match with perl regexp
+    :%S    - replace
+    :%G    - exec command with match
+
+PLUGIN: perl-support
+    <C-x><C-k>   - perl dictionary auto completion
+    \h           - open perldoc of cursor word
+
+    \rs          - run syntax check (perl -wc)
+    \rr          - run current script
+    \ra          - set command line arguments (@ARGV)
+    \rw          - set command line switches
+    \ro          - change perl execution result display ( vim > buffer > xterm )
+    \rd          - start perl debugger
+    \rt          - run perltidy
+    \rm          - run SmallProf
+    \rc          - run perlcritic
+
+    \ri          - show installed perl module list
+    \rg          - generate installed perl module list
+
+    \nr          - read code snippet
+    \nw          - write current selection as code snippet
+
+    problem:
+    code snippet, perldoc view, dictionary auto completion is good.
+    but others are not that worthy.
+
+TIPS - SORTING
+    with these lines:
+
+        dog
+        cat
+        apple
+
+    Vjj:!sort
+
+TIPS - CHANGING TABS TO SPACES (AND BACK)
+    " change all hard <Tab> chars to spaces
+    :set expandtab
+    :%retab
+
+    " change all softtabstop spaces to hard <Tab> chars
+    :set noexpandtab
+    :%retab
+
+[vim]
+to install, add multi-byte option:
+$ ./configure --enable-multibyte
+
+[gVim]
+make sure to disable "Native Language Support" at intallation, else everything will be in japanese! (sucks).

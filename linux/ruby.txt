@@ -1,0 +1,7 @@
+# install
+# you need this readline option for rails
+$ ./configure --with-install-readline
+
+# rails
+$ gem install rake
+$ gem install mysql -- --with-mysql-config=/usr/bin/mysql_config

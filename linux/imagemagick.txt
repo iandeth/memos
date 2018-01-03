@@ -1,0 +1,10 @@
+## command line tools
+
+## generate image
+convert -size 200x100 canvas:#DDDDDD foo.png
+
+## with some image overlay
+convert -size 200x100 canvas:#DDDDDD other.png -gravity center -composite foo.png
+
+## with some image overlay resized
+convert -size 200x100 canvas:#DDDDDD other.png geometry 50 -gravity center -composite foo.png
